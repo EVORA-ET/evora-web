@@ -1,0 +1,1194 @@
+/* ============================================================
+   EVORA — Infrastructure Onboarding
+   ============================================================ */
+
+.infrastructure-page {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   TOP HEADER
+   ============================================================ */
+
+.infrastructure-header {
+  height: 72px;
+  min-height: 72px;
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.infrastructure-brand {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.continue-button {
+  height: 42px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container);
+  color: var(--color-outline);
+  font-family: inherit;
+  font-size: var(--type-body-sm-size);
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: all 160ms ease;
+}
+
+.continue-button.is-valid {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+  cursor: pointer;
+}
+
+.continue-button.is-valid:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(20, 66, 44, 0.14);
+}
+
+.continue-button span {
+  font-size: 16px;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+
+.infrastructure-content {
+  width: min(1440px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 52px 0 56px;
+}
+
+/* ============================================================
+   INTRO
+   ============================================================ */
+
+.infrastructure-intro {
+  margin-bottom: 42px;
+}
+
+.section-eyebrow {
+  margin: 0 0 14px;
+  color: var(--color-primary);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.infrastructure-intro h1 {
+  max-width: 2000px;
+  margin: 0;
+  color: var(--color-on-background);
+  font-size: 48px;
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.intro-copy {
+  max-width: 1280px;
+  margin: 20px 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: 17px;
+  line-height: 28px;
+}
+
+/* ============================================================
+   WORKSPACE
+   ============================================================ */
+
+.infrastructure-workspace {
+  display: grid;
+  grid-template-columns: 390px minmax(0, 1fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+
+.infrastructure-sidebar {
+  min-width: 0;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  min-height: 650px;
+}
+
+/* ============================================================
+   COUNT CARDS
+   ============================================================ */
+
+.count-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.count-card {
+  min-height: 104px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--color-surface);
+}
+
+.count-card + .count-card {
+  border-left: 1px solid var(--color-outline-variant);
+}
+
+.count-label {
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.count-card strong {
+  margin-top: 5px;
+  color: var(--color-primary);
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   CHOICE SECTION
+   ============================================================ */
+
+.choice-section {
+  padding: 24px;
+}
+
+.choice-button {
+  width: 100%;
+  min-height: 60px;
+  margin-bottom: 10px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.choice-button:hover {
+  background: var(--color-surface-container-low);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.choice-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.choice-plus {
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.choice-arrow {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.added-summary {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.added-summary > p {
+  margin: 0 0 14px;
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.summary-row {
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  border-bottom: 1px solid var(--color-surface-container);
+}
+
+.summary-row span {
+  color: var(--color-outline);
+  font-size: 11px;
+}
+
+.summary-row strong {
+  color: var(--color-on-surface);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.route-summary {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--color-surface-container-low);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   FORM PANEL
+   ============================================================ */
+
+.form-panel {
+  padding: 22px 24px 26px;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+.back-button {
+  margin: 0 0 22px;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: var(--color-primary);
+}
+
+.form-heading {
+  margin-bottom: 24px;
+}
+
+.form-heading .section-eyebrow {
+  margin-bottom: 7px;
+}
+
+.form-heading h2 {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 23px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.form-heading > p:last-child {
+  margin: 8px 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* ============================================================
+   FORM FIELDS
+   ============================================================ */
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field > span {
+  color: var(--color-on-surface);
+  font-size: 12px;
+  line-height: 17px;
+  font-weight: 600;
+}
+
+.field em {
+  color: var(--color-error);
+  font-style: normal;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 43px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 13px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.field input::placeholder {
+  color: var(--color-outline);
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(20, 66, 44, 0.07);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ============================================================
+   ADDRESS SEARCH
+   ============================================================ */
+
+.address-field {
+  position: relative;
+}
+
+.address-field input {
+  padding-right: 92px;
+}
+
+.search-status {
+  position: absolute;
+  right: 12px;
+  bottom: 13px;
+  color: var(--color-primary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.address-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 2000;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-lowest);
+  box-shadow: 0 10px 28px rgba(27, 28, 26, 0.13);
+}
+
+.address-results button {
+  width: 100%;
+  min-height: 48px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  border: 0;
+  border-bottom: 1px solid var(--color-surface-container);
+  background: transparent;
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 17px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.address-results button:last-child {
+  border-bottom: 0;
+}
+
+.address-results button:hover {
+  background: var(--color-surface-container-low);
+}
+
+.result-pin {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: 17px;
+  line-height: 15px;
+}
+
+/* ============================================================
+   LOCATION STATUS
+   ============================================================ */
+
+.location-status {
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-low);
+}
+
+.location-status > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.location-status strong {
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.location-status small {
+  color: var(--color-on-surface-variant);
+  font-size: 10px;
+  line-height: 15px;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-outline);
+}
+
+.status-dot.confirmed {
+  background: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(20, 66, 44, 0.08);
+}
+
+/* ============================================================
+   TIME
+   ============================================================ */
+
+.time-row {
+  min-height: 43px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 7px;
+}
+
+.time-row input {
+  min-width: 0;
+}
+
+.time-row > span {
+  color: var(--color-outline);
+  font-size: 13px;
+}
+
+/* ============================================================
+   FACILITIES
+   ============================================================ */
+
+.toggle-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.toggle-title {
+  margin-bottom: 1px;
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.toggle-row {
+  min-height: 42px;
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.toggle-row:hover {
+  background: var(--color-surface-container-low);
+}
+
+.toggle-row.selected {
+  border-color: var(--color-primary);
+  background: rgba(20, 66, 44, 0.04);
+}
+
+.toggle {
+  width: 34px;
+  height: 20px;
+  padding: 2px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-surface-container-highest);
+  transition: background 160ms ease;
+}
+
+.toggle span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-surface-container-lowest);
+  box-shadow: 0 1px 3px rgba(27, 28, 26, 0.18);
+  transition: transform 160ms ease;
+}
+
+.toggle-row.selected .toggle {
+  background: var(--color-primary);
+}
+
+.toggle-row.selected .toggle span {
+  transform: translateX(14px);
+}
+
+/* ============================================================
+   PRIMARY ACTION
+   ============================================================ */
+
+.primary-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 3px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-default);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.primary-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.primary-action:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   ROUTE FORM
+   ============================================================ */
+
+.route-panel {
+  padding-bottom: 28px;
+}
+
+.route-selects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-field {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.route-field-number {
+  padding-top: 27px;
+  color: var(--color-outline);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.route-field label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.route-field label > span {
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.route-field select {
+  width: 100%;
+  min-height: 45px;
+  padding: 0 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.route-field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(20, 66, 44, 0.07);
+}
+
+.route-connector {
+  width: 1px;
+  height: 18px;
+  margin-left: 16px;
+  background: var(--color-outline-variant);
+}
+
+.route-map-note {
+  margin: 22px 0;
+  padding: 12px;
+  display: flex;
+  gap: 9px;
+  border-radius: var(--radius-default);
+  background: var(--color-surface-container-low);
+}
+
+.route-map-note > span {
+  color: var(--color-primary);
+  font-size: 11px;
+  padding-top: 2px;
+}
+
+.route-map-note p {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+/* ============================================================
+   MAP SECTION
+   ============================================================ */
+
+.map-section {
+  position: relative;
+  min-width: 0;
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container);
+}
+
+.map-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 600;
+  min-height: 64px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(251, 249, 245, 0.94);
+  border-bottom: 1px solid rgba(193, 201, 193, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+.map-header > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.map-title {
+  color: var(--color-primary);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+}
+
+.map-subtitle {
+  color: var(--color-outline);
+  font-size: 11px;
+}
+
+.map-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: 10px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.map-live > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.infrastructure-map {
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+}
+
+/* ============================================================
+   LEAFLET
+   ============================================================ */
+
+.infrastructure-map .leaflet-control-zoom {
+  margin-right: 16px !important;
+  margin-bottom: 16px !important;
+  border: 1px solid var(--color-outline-variant) !important;
+  border-radius: var(--radius-default) !important;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(27, 28, 26, 0.12);
+}
+
+.infrastructure-map .leaflet-control-zoom a {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  color: var(--color-primary) !important;
+  background: var(--color-surface-container-lowest) !important;
+  border-color: var(--color-outline-variant) !important;
+}
+
+.infrastructure-map .leaflet-control-zoom a:hover {
+  background: var(--color-surface-container-low) !important;
+}
+
+.infrastructure-map .leaflet-control-attribution {
+  font-size: 9px;
+}
+
+/* ============================================================
+   DEPOT MARKER
+   ============================================================ */
+
+.evora-marker-wrapper,
+.evora-preview-marker-wrapper {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.evora-marker {
+  position: relative;
+  width: 38px;
+  height: 46px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  filter: drop-shadow(0 3px 5px rgba(20, 66, 44, 0.22));
+}
+
+.evora-marker::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  background: var(--color-primary);
+  border: 3px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.evora-marker span {
+  position: absolute;
+  top: 11px;
+  z-index: 2;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.evora-marker.is-faded {
+  opacity: 0.28;
+  filter: grayscale(0.85);
+}
+
+.evora-marker.is-active {
+  opacity: 1;
+  filter: drop-shadow(0 4px 7px rgba(20, 66, 44, 0.3));
+}
+
+/* ============================================================
+   DRAGGABLE PREVIEW PIN
+   ============================================================ */
+
+.evora-preview-pin {
+  position: relative;
+  width: 40px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  cursor: grab;
+  filter: drop-shadow(0 4px 6px rgba(20, 66, 44, 0.3));
+}
+
+.evora-preview-pin:active {
+  cursor: grabbing;
+}
+
+.evora-preview-pin-head {
+  width: 36px;
+  height: 36px;
+  margin-top: 1px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  border: 3px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.evora-preview-pin-head span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+.evora-preview-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 9px;
+  height: 5px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(20, 66, 44, 0.2);
+  filter: blur(2px);
+}
+
+.evora-preview-marker-wrapper.is-dragging .evora-preview-pin {
+  transform: translateY(-4px);
+}
+
+/* ============================================================
+   MAP TOOLTIP
+   ============================================================ */
+
+.evora-map-tooltip {
+  padding: 5px 8px !important;
+  border: 1px solid var(--color-outline-variant) !important;
+  border-radius: var(--radius-default) !important;
+  background: var(--color-surface-container-lowest) !important;
+  color: var(--color-on-surface) !important;
+  box-shadow: 0 3px 10px rgba(27, 28, 26, 0.12) !important;
+  font-family: var(--font-family) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================
+   MAP INSTRUCTION
+   ============================================================ */
+
+.map-instruction {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 600;
+  max-width: 310px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-on-surface-variant);
+  box-shadow: 0 4px 14px rgba(27, 28, 26, 0.12);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.map-instruction > span {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ============================================================
+   ROUTE LEGEND
+   ============================================================ */
+
+.route-map-legend {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 600;
+  padding: 10px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 14px rgba(27, 28, 26, 0.12);
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+}
+
+.route-map-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.legend-dot.source {
+  background: var(--color-primary);
+}
+
+.legend-dot.destination {
+  background: var(--color-secondary);
+}
+
+/* ============================================================
+   EMPTY MAP
+   ============================================================ */
+
+.empty-map-state {
+  position: absolute;
+  inset: 64px 0 0;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(251, 249, 245, 0.12);
+}
+
+.empty-map-mark {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 50%;
+  background: rgba(251, 249, 245, 0.92);
+  color: var(--color-primary);
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.empty-map-state strong {
+  color: var(--color-on-surface);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.empty-map-state span {
+  max-width: 260px;
+  margin-top: 5px;
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+  line-height: 17px;
+  text-align: center;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+.form-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.form-panel::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+  border-radius: 999px;
+}
+
+.form-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .infrastructure-content {
+    width: min(100% - 40px, 1000px);
+  }
+
+  .infrastructure-workspace {
+    grid-template-columns: 350px minmax(0, 1fr);
+  }
+
+  .infrastructure-intro h1 {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 900px) {
+  .infrastructure-header {
+    padding: 0 24px;
+  }
+
+  .infrastructure-content {
+    width: calc(100% - 32px);
+    padding-top: 36px;
+  }
+
+  .infrastructure-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .infrastructure-sidebar {
+    min-height: auto;
+  }
+
+  .form-panel {
+    max-height: none;
+  }
+
+  .map-section {
+    min-height: 520px;
+  }
+
+  .infrastructure-map {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 600px) {
+  .infrastructure-header {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 16px;
+  }
+
+  .continue-button {
+    height: 38px;
+    padding: 0 13px;
+    font-size: 12px;
+  }
+
+  .infrastructure-content {
+    width: calc(100% - 24px);
+    padding: 28px 0 36px;
+  }
+
+  .infrastructure-intro {
+    margin-bottom: 28px;
+  }
+
+  .infrastructure-intro h1 {
+    font-size: 32px;
+    line-height: 38px;
+  }
+
+  .intro-copy {
+    font-size: 15px;
+    line-height: 23px;
+  }
+
+  .choice-section,
+  .form-panel {
+    padding: 18px;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .map-header {
+    min-height: 58px;
+    padding: 0 12px;
+  }
+
+  .map-header > div {
+    gap: 7px;
+  }
+
+  .map-subtitle {
+    display: none;
+  }
+
+  .map-section,
+  .infrastructure-map {
+    min-height: 440px;
+  }
+}

@@ -1,0 +1,62 @@
+.evora-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  
+    min-height: 40px;
+    padding: 0 var(--space-3);
+  
+    border: 1px solid transparent;
+    border-radius: var(--radius-default);
+  
+    font-family: var(--font-family);
+    font-size: var(--type-label-md-size);
+    font-weight: var(--type-label-md-weight);
+    line-height: var(--type-label-md-line-height);
+  
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      color 150ms ease,
+      transform 150ms ease;
+  }
+  
+  .evora-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .evora-button--primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+  
+  .evora-button--primary:hover:not(:disabled) {
+    background: var(--color-primary-container);
+  }
+  
+  .evora-button--secondary {
+    background: transparent;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  
+  .evora-button--secondary:hover:not(:disabled) {
+    background: color-mix(
+      in srgb,
+      var(--color-primary) 8%,
+      transparent
+    );
+  }
+  
+  .evora-button--ghost {
+    background: transparent;
+    color: var(--color-on-surface-variant);
+  }
+  
+  .evora-button--ghost:hover:not(:disabled) {
+    background: var(--color-primary-fixed);
+    color: var(--color-on-primary-fixed);
+  }
