@@ -2,6 +2,47 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Run with Docker
+
+The production build is served by Nginx inside a Docker container (port 80, mapped to host port 5173).
+
+```bash
+# Build the image
+docker build -t evora-web .
+
+# Run the container
+docker run -d --name evora-web -p 5173:80 --restart unless-stopped evora-web
+```
+
+Then open http://localhost:5173/
+
+### Stop the container
+
+```bash
+docker stop evora-web
+```
+
+### Remove the container
+
+```bash
+docker rm evora-web
+```
+
+### Rebuild after code changes
+
+The image bakes in the build output, so after changing source code you must rebuild and rerun:
+
+```bash
+docker stop evora-web && docker rm evora-web
+docker build -t evora-web .
+docker run -d --name evora-web -p 5173:80 --restart unless-stopped evora-web
+```
+
+### Notes
+
+- After a rebuild, the JS/CSS asset filenames get new hashes. If a change doesn't appear, the mounted image may be stale — rebuild and rerun as above.
+- SPA routing (e.g. `/login`) works because Nginx falls back to `index.html` via `try_files $uri $uri/ /index.html;`.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
