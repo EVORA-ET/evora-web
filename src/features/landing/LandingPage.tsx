@@ -24,11 +24,11 @@ export default function EvoraLanding() {
         </nav>
 
         <div className="nav-actions">
-          <a href="#" className="login">
+          <a href="/login" className="login">
             Login
           </a>
 
-          <a href="#" className="nav-cta">
+          <a href="/register" className="nav-cta">
             Enter EVORA
           </a>
         </div>
@@ -58,7 +58,7 @@ export default function EvoraLanding() {
 
           <div className="hero-buttons">
 
-            <a href="#" className="button primary">
+            <a href="/register" className="button primary">
               Explore EVORA
               <span>→</span>
             </a>
@@ -266,7 +266,7 @@ export default function EvoraLanding() {
             understand the bigger picture.
           </p>
 
-          <a href="#" className="simple-link">
+          <a href="/register" className="simple-link">
             Discover the platform →
           </a>
 
@@ -440,7 +440,7 @@ export default function EvoraLanding() {
             organization move forward.
           </p>
 
-          <a href="#" className="button primary">
+          <a href="/register" className="button primary">
             Enter EVORA
             <span>→</span>
           </a>
@@ -456,7 +456,7 @@ export default function EvoraLanding() {
 
         <div className="footer-brand">
 
-          <a href="#" className="logo dark">
+          <a href="/" className="logo dark">
             EVORA<span>®</span>
           </a>
 
@@ -482,7 +482,7 @@ export default function EvoraLanding() {
             Impact
           </a>
 
-          <a href="#">
+          <a href="/login">
             Login
           </a>
 
