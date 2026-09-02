@@ -1,0 +1,1643 @@
+/* ============================================================
+   EVORA FLEET ONBOARDING
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+.fleet-page {
+  min-height: 100vh;
+  background: #f7f7f4;
+  color: #17211d;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+
+.fleet-header {
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 54px;
+  background: #fafaf7;
+  border-bottom: 1px solid #d7ddd8;
+}
+
+.fleet-brand {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #07563f;
+}
+
+.fleet-back-button {
+  height: 48px;
+  padding: 0 20px;
+  border: 1px solid #b9c8c1;
+  border-radius: 9px;
+  background: #f7f8f5;
+  color: #4d6259;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.fleet-back-button:hover {
+  background: #eef2ee;
+  border-color: #91a79d;
+  color: #164d3d;
+}
+
+.back-arrow {
+  font-size: 20px;
+}
+
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+.fleet-main {
+  max-width: 1660px;
+  margin: 0 auto;
+  padding: 48px 54px 80px;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.fleet-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 620px;
+  gap: 70px;
+  align-items: center;
+  margin-bottom: 54px;
+}
+
+.fleet-eyebrow,
+.drawer-eyebrow {
+  color: #096247;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.fleet-hero-content h1 {
+  margin: 24px 0 24px;
+  max-width: 720px;
+  font-size: 43px;
+  line-height: 1.08;
+  letter-spacing: -1.8px;
+  font-weight: 750;
+}
+
+.fleet-hero-content p {
+  max-width: 900px;
+  margin: 0;
+  color: #718078;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+
+/* ============================================================
+   INTELLIGENCE CARD
+   ============================================================ */
+
+.fleet-intelligence-card {
+  min-height: 190px;
+  padding: 28px 32px;
+  border: 1px solid #dde5df;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      #fbfcfa,
+      #f0f6f2
+    );
+  box-shadow:
+    0 12px 35px rgba(26, 54, 43, 0.05);
+}
+
+.intelligence-title {
+  margin-bottom: 25px;
+  color: #4a5a53;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.intelligence-row {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 0.5fr;
+  align-items: center;
+  gap: 20px;
+}
+
+.intelligence-side {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.intelligence-icon {
+  grid-row: span 2;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.ice-icon {
+  background: #fff0dc;
+}
+
+.ev-icon {
+  background: #dcefe6;
+}
+
+.intelligence-label {
+  font-size: 18px;
+  font-weight: 800;
+  padding-top:12px;
+}
+
+.ice-text {
+  margin-right: -15px;
+  color: #b8681d;
+}
+
+.ev-text {
+  padding-left: 18px;
+  margin-left: -15px;
+  color: #087353;
+}
+
+.intelligence-side strong {
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.intelligence-right {
+  justify-content: end;
+  text-align: right;
+}
+
+.intelligence-middle {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.intelligence-line {
+  /* padding-right:45px; */
+  height: 2px;
+  background: #b7c9bd;
+}
+
+.intelligence-symbol {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dcefe6;
+  color: #087353;
+  font-size: 24px;
+}
+
+.intelligence-name {
+  position: absolute;
+  transform: translateY(31px);
+  left: 50%;
+  margin-left: -65px;
+  color: #087353;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   MAIN FLEET CONTAINER
+   ============================================================ */
+
+.fleet-container {
+  padding: 38px;
+  border: 1px solid #dfe5e1;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow:
+    0 12px 40px rgba(31, 48, 40, 0.04);
+}
+
+.fleet-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 32px;
+}
+
+.fleet-section-header h2 {
+  margin: 0 0 8px;
+  font-size: 31px;
+  letter-spacing: -1px;
+}
+
+.fleet-section-header p {
+  margin: 0;
+  color: #74817b;
+  font-size: 18px;
+}
+
+.fleet-note {
+  flex-shrink: 0;
+  padding: 11px 18px;
+  border-radius: 24px;
+  background: #f0f5f1;
+  color: #5e796b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   OPTION CARDS
+   ============================================================ */
+
+.fleet-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.fleet-option {
+  min-height: 315px;
+  padding: 30px;
+  border: 1px solid #dfe5e1;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ice-card {
+  background: #fff8ef;
+}
+
+.ev-card {
+  background: #eef8f3;
+}
+
+.import-card {
+  background: #f5f7f6;
+}
+
+.option-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  font-size: 28px;
+}
+
+.ice-option-icon {
+  background: #fff0dc;
+  color: #b66a20;
+}
+
+.ev-option-icon {
+  background: #dcefe6;
+  color: #087353;
+}
+
+.import-option-icon {
+  background: #e9eeeb;
+  color: #5e6963;
+}
+
+.fleet-option h3 {
+  margin: 0 0 9px;
+  font-size: 25px;
+  letter-spacing: -0.6px;
+}
+
+.fleet-option p {
+  max-width: 430px;
+  margin: 0;
+  color: #77827d;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.fleet-action-button {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 11px;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ice-button {
+  background: #b9681c;
+}
+
+.ice-button:hover {
+  background: #9e5615;
+  transform: translateY(-1px);
+}
+
+.ev-button {
+  background: #07583f;
+}
+
+.ev-button:hover {
+  background: #044932;
+  transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   IMPORT
+   ============================================================ */
+
+.import-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: auto;
+}
+
+.upload-button {
+  padding: 13px 19px;
+  border: 1px solid #d5ded9;
+  border-radius: 11px;
+  background: white;
+  color: #45544d;
+  font-size: 17px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background: #f0f4f1;
+}
+
+.template-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #087353;
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   SUMMARY
+   ============================================================ */
+
+.fleet-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px solid #dce5df;
+  border-radius: 12px;
+  background: #f6faf7;
+  color: #456258;
+  font-weight: 650;
+}
+
+.summary-counts {
+  display: flex;
+  gap: 12px;
+}
+
+.summary-ice {
+  color: #b9681c;
+}
+
+.summary-ev {
+  color: #087353;
+}
+
+.summary-divider {
+  color: #b8c1bc;
+}
+
+
+/* ============================================================
+   DRAWER OVERLAY
+   ============================================================ */
+
+.drawer-overlay,
+.import-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(29, 46, 39, 0.36);
+  backdrop-filter: blur(2px);
+}
+
+
+/* ============================================================
+   VEHICLE DRAWER
+   ============================================================ */
+
+.vehicle-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(760px, 92vw);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  box-shadow: -12px 0 45px rgba(21, 41, 32, 0.13);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 34px 34px 28px;
+  border-bottom: 1px solid #e0e5e2;
+}
+
+.drawer-header h2 {
+  margin: 14px 0 10px;
+  font-size: 34px;
+  letter-spacing: -1.2px;
+}
+
+.drawer-header p {
+  max-width: 570px;
+  margin: 0;
+  color: #74817b;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.drawer-close,
+.import-close {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 11px;
+  background: #f0f4f1;
+  color: #586760;
+  font-size: 29px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.drawer-close:hover,
+.import-close:hover {
+  background: #e4ebe6;
+}
+
+
+/* ============================================================
+   DRAWER BODY
+   ============================================================ */
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 26px 34px 40px;
+}
+
+.form-section {
+  padding-bottom: 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #e2e7e4;
+}
+
+.form-section:last-child {
+  border-bottom: 0;
+}
+
+.form-section-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.form-section-title h3 {
+  margin: 0 0 6px;
+  font-size: 21px;
+}
+
+.form-section-title p {
+  margin: 0;
+  color: #7b8781;
+  font-size: 15px;
+}
+
+.form-section-title > span {
+  color: #263a31;
+  font-size: 22px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  color: #33443c;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.required-star {
+  margin-left: 3px;
+  color: #b9681c;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  height: 54px;
+  padding: 0 15px;
+  border: 1px solid #d8e0db;
+  border-radius: 11px;
+  outline: none;
+  background: #ffffff;
+  color: #24332d;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.form-field input::placeholder {
+  color: #a0aaa5;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #6c9785;
+  box-shadow: 0 0 0 3px rgba(8, 115, 83, 0.08);
+}
+
+.form-field select {
+  cursor: pointer;
+}
+
+.form-field select:disabled {
+  background: #f1f5f2;
+  color: #52665d;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   DRAWER FOOTER
+   ============================================================ */
+
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 34px;
+  border-top: 1px solid #e0e5e2;
+  background: #ffffff;
+}
+
+.drawer-cancel {
+  height: 48px;
+  padding: 0 22px;
+  border: 1px solid #ccd7d1;
+  border-radius: 9px;
+  background: white;
+  color: #52635b;
+  font-size: 16px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.drawer-save {
+  height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 9px;
+  background: #07583f;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-save:hover:not(:disabled) {
+  background: #044932;
+}
+
+.drawer-save:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   CSV IMPORT MODAL
+   ============================================================ */
+
+.import-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.import-modal {
+  position: relative;
+  width: min(920px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 38px 40px 40px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 30px 80px rgba(25, 43, 35, 0.2);
+}
+
+.import-modal h2 {
+  margin: 14px 0 10px;
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+
+.import-description {
+  max-width: 760px;
+  margin: 0;
+  color: #74817b;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.import-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+}
+
+
+/* ============================================================
+   IMPORT STEPS
+   ============================================================ */
+
+.import-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 32px 0;
+}
+
+.import-step {
+  min-height: 94px;
+  padding: 18px;
+  border-radius: 12px;
+  background: #f5f7f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.import-step.active {
+  background: #edf7f1;
+}
+
+.import-step span {
+  color: #087353;
+  font-weight: 800;
+}
+
+.import-step strong {
+  font-size: 17px;
+}
+
+
+/* ============================================================
+   UPLOAD ZONE
+   ============================================================ */
+
+.upload-zone {
+  min-height: 260px;
+  padding: 35px;
+  border: 1px dashed #bad0c4;
+  border-radius: 16px;
+  background: #f8fbf9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.upload-icon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  background: #dcefe6;
+  color: #087353;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.upload-zone h3 {
+  margin: 0 0 5px;
+  font-size: 19px;
+}
+
+.upload-zone p {
+  margin: 0 0 18px;
+  color: #7a8780;
+  font-size: 16px;
+}
+
+.browse-button {
+  padding: 11px 18px;
+  border: 1px solid #bfd0c7;
+  border-radius: 9px;
+  background: white;
+  color: #07583f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.browse-button:hover {
+  background: #edf5f0;
+}
+
+.modal-template-button {
+  width: 100%;
+  height: 50px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #07583f;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-template-button:hover {
+  background: #044932;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1200px) {
+  .fleet-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .fleet-intelligence-card {
+    max-width: 700px;
+  }
+
+  .fleet-options {
+    grid-template-columns: 1fr;
+  }
+
+  .fleet-option {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 760px) {
+  .fleet-header {
+    padding: 0 20px;
+  }
+
+  .fleet-main {
+    padding: 35px 20px 60px;
+  }
+
+  .fleet-back-button {
+    font-size: 0;
+  }
+
+  .fleet-back-button .back-arrow {
+    font-size: 22px;
+  }
+
+  .fleet-hero-content h1 {
+    font-size: 36px;
+  }
+
+  .fleet-hero-content p {
+    font-size: 17px;
+  }
+
+  .fleet-container {
+    padding: 22px;
+  }
+
+  .fleet-section-header {
+    flex-direction: column;
+  }
+
+  .fleet-note {
+    align-self: flex-start;
+  }
+
+  .intelligence-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .intelligence-middle {
+    display: none;
+  }
+
+  .intelligence-right {
+    justify-content: start;
+    text-align: left;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer-header,
+  .drawer-body {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .drawer-footer {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .import-modal {
+    padding: 30px 22px;
+  }
+
+  .import-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   YOUR FLEET
+   ========================================================= */
+
+.fleet-overview-card {
+  width: 100%;
+  margin-top: 28px;
+  background: #ffffff;
+  border: 1px solid #e1e6e3;
+  border-radius: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Header */
+
+.fleet-overview-header {
+  padding: 38px 40px 34px;
+}
+
+.fleet-overview-header h2 {
+  margin: 0;
+  color: #17231f;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+}
+
+.fleet-overview-header p {
+  margin: 10px 0 0;
+  color: #7b8781;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* Stats */
+
+.fleet-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid #e1e6e3;
+  border-bottom: 1px solid #e1e6e3;
+}
+
+.fleet-stat {
+  min-height: 170px;
+  padding: 32px 34px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.fleet-stat + .fleet-stat {
+  border-left: 1px solid #e1e6e3;
+}
+
+.fleet-stat-label {
+  color: #7d8983;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: 1.2px;
+}
+
+.fleet-stat-label.ice {
+  color: #b56a1b;
+}
+
+.fleet-stat-label.ev {
+  color: #167253;
+}
+
+.fleet-stat-value {
+  margin-top: 20px;
+  color: #17231f;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+}
+
+/* Empty state */
+
+.fleet-empty-state {
+  min-height: 305px;
+  padding: 58px 30px 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.fleet-empty-icon {
+  color: #98b0a4;
+  margin-bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fleet-empty-state h3 {
+  margin: 0;
+  color: #4d5b54;
+  font-size: 21px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.fleet-empty-state p {
+  margin: 8px 0 0;
+  color: #89958f;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .fleet-overview-header {
+    padding: 30px 28px;
+  }
+
+  .fleet-overview-header h2 {
+    font-size: 30px;
+  }
+
+  .fleet-overview-header p {
+    font-size: 18px;
+  }
+
+  .fleet-stat {
+    min-height: 145px;
+    padding: 26px 24px;
+  }
+
+  .fleet-stat-label {
+    font-size: 17px;
+  }
+
+  .fleet-stat-value {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 650px) {
+  .fleet-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .fleet-stat + .fleet-stat {
+    border-left: none;
+    border-top: 1px solid #e1e6e3;
+  }
+
+  .fleet-empty-state {
+    min-height: 270px;
+    padding: 45px 20px;
+  }
+
+  .fleet-empty-state h3 {
+    font-size: 18px;
+  }
+
+  .fleet-empty-state p {
+    font-size: 17px;
+  }
+}
+
+/* =========================================================
+   LOOKING AHEAD
+   ========================================================= */
+
+.fleet-looking-ahead {
+  width: 100%;
+  margin-top: 32px;
+  padding: 48px 52px;
+  box-sizing: border-box;
+
+  background: #edf6f1;
+  border: 1px solid #d7e8df;
+  border-radius: 20px;
+}
+
+.fleet-looking-ahead-content {
+  max-width: 1050px;
+}
+
+.fleet-section-label {
+  margin-bottom: 18px;
+
+  color: #12664d;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.fleet-looking-ahead h2 {
+  margin: 0 0 16px;
+
+  color: #17231f;
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+}
+
+.fleet-looking-ahead p {
+  max-width: 1050px;
+  margin: 0;
+
+  color: #52665e;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.fleet-looking-ahead-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 28px;
+}
+
+.fleet-transition-link,
+.fleet-later-link {
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+
+  cursor: pointer;
+}
+
+.fleet-transition-link {
+  color: #086b50;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 5px;
+}
+
+.fleet-transition-link:hover {
+  color: #064f3d;
+}
+
+.fleet-later-link {
+  color: #61736b;
+  font-weight: 500;
+}
+
+.fleet-later-link:hover {
+  color: #17231f;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .fleet-looking-ahead {
+    padding: 40px 32px;
+  }
+
+  .fleet-looking-ahead h2 {
+    font-size: 30px;
+  }
+
+  .fleet-looking-ahead p {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 600px) {
+  .fleet-looking-ahead {
+    margin-top: 24px;
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+
+  .fleet-looking-ahead h2 {
+    font-size: 27px;
+  }
+
+  .fleet-looking-ahead p {
+    font-size: 16px;
+  }
+
+  .fleet-looking-ahead-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+}
+/* =========================================================
+   FLEET COMPLETION / FLEET BASELINE SECTION
+   ========================================================= */
+
+.fleet-completion {
+  width: calc(100% - 86px);
+  margin: 48px auto 0;
+  padding: 0 0 48px;
+  box-sizing: border-box;
+}
+
+.fleet-completion-header {
+  width: 100%;
+}
+
+.fleet-section-label {
+  margin: 0 0 20px;
+  color: #087257;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1.2;
+}
+
+.fleet-completion h2 {
+  margin: 0 0 28px;
+  color: #17221f;
+  font-size: 32px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.7px;
+}
+
+/* Six baseline categories */
+
+.fleet-baseline-items {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  width: 100%;
+  color: #63736d;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.fleet-baseline-items span {
+  display: inline-block;
+}
+
+/* Divider */
+
+.fleet-completion-divider {
+  width: 100%;
+  height: 1px;
+  margin: 42px 0 50px;
+  background: #dfe5e1;
+}
+
+/* Bottom area */
+
+.fleet-completion-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 40px;
+}
+
+.fleet-completion-footer > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.fleet-completion-footer h3 {
+  margin: 0 0 14px;
+  color: #17221f;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.fleet-completion-footer p {
+  max-width: 850px;
+  margin: 0;
+  color: #65756f;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* Buttons container */
+
+.fleet-completion-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* Save & finish later */
+
+.fleet-save-later-button {
+  height: 64px;
+  padding: 0 28px;
+  border: 1px solid #d4ddd8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #33433d;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.fleet-save-later-button:hover {
+  background: #f7faf8;
+  border-color: #c5d1cb;
+}
+
+/* Continue to Fleet Baseline */
+
+.fleet-baseline-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 332px;
+  height: 64px;
+  padding: 0 28px;
+  border: 1px solid #075b43;
+  border-radius: 10px;
+  background: #075b43;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.fleet-baseline-button span {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.fleet-baseline-button:hover:not(:disabled) {
+  background: #064d3a;
+  border-color: #064d3a;
+  transform: translateY(-1px);
+}
+
+/* Disabled state */
+
+.fleet-baseline-button:disabled {
+  background: #dce2df;
+  border-color: #dce2df;
+  color: #91a09a;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .fleet-completion {
+    width: calc(100% - 56px);
+  }
+
+  .fleet-baseline-items {
+    gap: 24px;
+    font-size: 18px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .fleet-completion-footer {
+    align-items: flex-start;
+  }
+
+  .fleet-completion-footer p {
+    max-width: 700px;
+  }
+
+  .fleet-baseline-button {
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 950px) {
+  .fleet-completion-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fleet-completion-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 650px) {
+  .fleet-completion {
+    width: calc(100% - 32px);
+    margin-top: 36px;
+    padding-bottom: 32px;
+  }
+
+  .fleet-section-label {
+    font-size: 17px;
+    letter-spacing: 2px;
+  }
+
+  .fleet-completion h2 {
+    font-size: 26px;
+  }
+
+  .fleet-baseline-items {
+    gap: 20px;
+    font-size: 16px;
+  }
+
+  .fleet-completion-divider {
+    margin: 32px 0 36px;
+  }
+
+  .fleet-completion-footer h3 {
+    font-size: 24px;
+  }
+
+  .fleet-completion-footer p {
+    font-size: 17px;
+  }
+
+  .fleet-completion-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fleet-save-later-button,
+  .fleet-baseline-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ============================================================
+   VEHICLE LIST
+   ============================================================ */
+
+.fleet-vehicle-list {
+  width: 100%;
+  border-top: 1px solid #e1e7e3;
+}
+
+.fleet-vehicle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 26px 34px;
+  border-bottom: 1px solid #e1e7e3;
+  background: #ffffff;
+  transition: background 0.2s ease;
+}
+
+.fleet-vehicle-row:hover {
+  background: #fafcfb;
+}
+
+.fleet-vehicle-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 280px;
+}
+
+.fleet-vehicle-type-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.fleet-vehicle-ice {
+  background: #fff1df;
+  color: #b66a1d;
+}
+
+.fleet-vehicle-ev {
+  background: #e4f3ec;
+  color: #086046;
+}
+
+.fleet-vehicle-identity h3 {
+  margin: 0 0 5px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #17231f;
+}
+
+.fleet-vehicle-identity p {
+  margin: 0;
+  font-size: 15px;
+  color: #71817a;
+}
+
+.fleet-vehicle-details {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(90px, 1fr));
+  gap: 30px;
+  flex: 1;
+  max-width: 650px;
+}
+
+.fleet-vehicle-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fleet-vehicle-detail span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #87958f;
+}
+
+.fleet-vehicle-detail strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #26332e;
+}
+
+/* ============================================================
+   HIDE EMPTY STATE WHEN VEHICLES EXIST
+   ============================================================ */
+
+/*
+ * We are intentionally NOT modifying the existing
+ * .fleet-empty-state JSX.
+ *
+ * Once .fleet-vehicle-list exists inside the same
+ * overview card, the empty state is automatically hidden.
+ */
+
+.fleet-overview-card:has(.fleet-vehicle-list) .fleet-empty-state {
+  display: none;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .fleet-vehicle-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fleet-vehicle-details {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .fleet-vehicle-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .fleet-vehicle-row {
+    padding: 22px 20px;
+  }
+}
