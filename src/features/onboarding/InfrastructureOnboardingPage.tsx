@@ -2,6 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import {
+  createDepot,
+  createJobTemplate,
+  listDepots,
+  listJobTemplates,
+} from "../../lib/api";
+import type {
+  DepotCreateInput,
+  JobTemplate,
+  JobTemplateStatus,
+} from "../../lib/api";
+import { useTransition } from "../../app/useTransition";
 import "./InfrastructureOnboardingPage.css";
 
 interface Coordinates {
@@ -16,7 +28,7 @@ interface Depot {
   location: {
     type: "Point";
     coordinates: [number, number];
-  };
+  } | null;
   parking_capacity: number;
   workshop_available: boolean;
   fuel_station_available: boolean;
@@ -50,6 +62,110 @@ interface RouteData {
   id: string;
   sourceId: string;
   destinationId: string;
+  name: string;
+}
+
+type RecurrencePattern =
+  | "daily"
+  | "daily_n"
+  | "weekly"
+  | "weekly_n"
+  | "monthly"
+  | "custom";
+
+interface RouteForm {
+  name: string;
+  description: string;
+  isRecurring: boolean;
+  pattern: RecurrencePattern;
+  intervalDays: string;
+  weekDays: string[];
+  weekInterval: string;
+  monthDay: string;
+  customRule: string;
+  isPermanent: boolean;
+  startDate: string;
+  endDate: string;
+  status: JobTemplateStatus;
+}
+
+const WEEKDAY_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "MO", label: "M" },
+  { value: "TU", label: "T" },
+  { value: "WE", label: "W" },
+  { value: "TH", label: "T" },
+  { value: "FR", label: "F" },
+  { value: "SA", label: "S" },
+  { value: "SU", label: "S" },
+];
+
+const RECURRENCE_PATTERNS: Array<{ value: RecurrencePattern; label: string }> = [
+  { value: "daily", label: "Daily" },
+  { value: "daily_n", label: "Every N days" },
+  { value: "weekly", label: "Weekly" },
+  { value: "weekly_n", label: "Every N weeks" },
+  { value: "monthly", label: "Monthly" },
+  { value: "custom", label: "Custom" },
+];
+
+const EMPTY_ROUTE_FORM: RouteForm = {
+  name: "",
+  description: "",
+  isRecurring: false,
+  pattern: "daily",
+  intervalDays: "1",
+  weekDays: [],
+  weekInterval: "1",
+  monthDay: "1",
+  customRule: "",
+  isPermanent: false,
+  startDate: "",
+  endDate: "",
+  status: "ACTIVE",
+};
+
+function buildRecurrenceRule(form: RouteForm): string {
+  if (!form.isRecurring) {
+    return "";
+  }
+
+  switch (form.pattern) {
+    case "daily": {
+      return "FREQ=DAILY;INTERVAL=1";
+    }
+
+    case "daily_n": {
+      const interval =
+        Number(form.intervalDays) || 1;
+      return `FREQ=DAILY;INTERVAL=${interval}`;
+    }
+
+    case "weekly": {
+      return `FREQ=WEEKLY;INTERVAL=1;BYDAY=${form.weekDays.join(",")}`;
+    }
+
+    case "weekly_n": {
+      const interval =
+        Number(form.weekInterval) || 1;
+      return `FREQ=WEEKLY;INTERVAL=${interval};BYDAY=${
+        form.weekDays.join(",")
+      }`;
+    }
+
+    case "monthly": {
+      const day =
+        Number(form.monthDay) || 1;
+      return `FREQ=MONTHLY;INTERVAL=1;BYMONTHDAY=${day}`;
+    }
+
+    case "custom": {
+      return form.customRule.trim();
+    }
+
+    default: {
+      return "";
+    }
+  }
 }
 
 interface SearchResult {
@@ -108,6 +224,7 @@ function createPreviewMarker() {
 
 export default function InfrastructureOnboardingPage() {
   const navigate = useNavigate();
+  const { runTransition } = useTransition();
 
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -123,43 +240,129 @@ export default function InfrastructureOnboardingPage() {
 
   /*
    * ------------------------------------------------------------
-   * RESTORE SAVED INFRASTRUCTURE DATA
+   * BACKEND DATA (source of truth)
    * ------------------------------------------------------------
    */
 
-  const [depots, setDepots] = useState<Depot[]>(() => {
-    try {
-      const saved =
-        sessionStorage.getItem("evora-infrastructure");
+  const [depots, setDepots] = useState<Depot[]>([]);
 
-      if (!saved) return [];
+  const [routes, setRoutes] = useState<RouteData[]>([]);
 
-      const parsed = JSON.parse(saved);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-      return Array.isArray(parsed.depots)
-        ? parsed.depots
-        : [];
-    } catch {
-      return [];
+  const fetchStartedRef = useRef(false);
+
+  function toDepotView(serverDepot: Awaited<
+    ReturnType<typeof listDepots>
+  >[number]): Depot {
+    const hours =
+      serverDepot.operating_hours ?? {};
+
+    return {
+      id: serverDepot.id,
+
+      name: serverDepot.name,
+
+      address: serverDepot.address,
+
+      location: serverDepot.location
+        ? {
+            type: "Point",
+
+            coordinates: [
+              serverDepot.location.coordinates[0],
+              serverDepot.location.coordinates[1],
+            ],
+          }
+        : null,
+
+      parking_capacity:
+        serverDepot.parking_capacity,
+
+      workshop_available:
+        serverDepot.workshop_available,
+
+      fuel_station_available:
+        serverDepot.fuel_station_available,
+
+      charging_available:
+        serverDepot.charging_available,
+
+      charger_count:
+        serverDepot.charger_count,
+
+      maintenance_bays:
+        serverDepot.maintenance_bays,
+
+      operating_hours: {
+        open:
+          hours.start ?? hours.open ?? "08:00",
+
+        close:
+          hours.end ?? hours.close ?? "18:00",
+      },
+
+      depot_manager_name:
+        serverDepot.depot_manager_name,
+
+      depot_manager_contact:
+        String(
+          serverDepot.depot_manager_contact ?? ""
+        ),
+    };
+  }
+
+  function fetchInfrastructure() {
+    void runTransition(async () => {
+      try {
+        const [serverDepots, serverTemplates] =
+          await Promise.all([
+            listDepots(),
+
+            listJobTemplates(),
+          ]);
+
+        setDepots(
+          serverDepots.map(toDepotView)
+        );
+
+        setRoutes(
+          serverTemplates.map(
+            (template: JobTemplate) => ({
+              id: template.id,
+
+              sourceId:
+                template.source_depot_id,
+
+              destinationId:
+                template.destination_depot_id ??
+                "",
+
+              name: template.name,
+            })
+          )
+        );
+
+        setLoadError(null);
+      } catch {
+        setLoadError(
+          "Could not load your network from the server. Please retry."
+        );
+      } finally {
+        fetchStartedRef.current = false;
+      }
+    });
+  }
+
+  useEffect(() => {
+    if (fetchStartedRef.current) {
+      return;
     }
-  });
 
-  const [routes, setRoutes] = useState<RouteData[]>(() => {
-    try {
-      const saved =
-        sessionStorage.getItem("evora-infrastructure");
+    fetchStartedRef.current = true;
 
-      if (!saved) return [];
-
-      const parsed = JSON.parse(saved);
-
-      return Array.isArray(parsed.routes)
-        ? parsed.routes
-        : [];
-    } catch {
-      return [];
-    }
-  });
+    fetchInfrastructure();
+  }, []);
 
   const [depotForm, setDepotForm] =
     useState<DepotForm>(EMPTY_DEPOT_FORM);
@@ -176,28 +379,14 @@ export default function InfrastructureOnboardingPage() {
   const [sourceId, setSourceId] = useState("");
   const [destinationId, setDestinationId] = useState("");
 
-  const [, setIsAddingDepot] = useState(false);
-  const [, setIsAddingRoute] = useState(false);
+  const [routeForm, setRouteForm] =
+    useState<RouteForm>(EMPTY_ROUTE_FORM);
 
-  /*
-   * ------------------------------------------------------------
-   * PERSIST INFRASTRUCTURE PROGRESS
-   * ------------------------------------------------------------
-   */
+  const [depotError, setDepotError] = useState<string | null>(null);
+  const [depotSaving, setDepotSaving] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const [routeSaving, setRouteSaving] = useState(false);
 
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(
-        "evora-infrastructure",
-        JSON.stringify({
-          depots,
-          routes,
-        })
-      );
-    } catch {
-      // Ignore storage errors.
-    }
-  }, [depots, routes]);
 
   /*
    * ------------------------------------------------------------
@@ -271,6 +460,10 @@ export default function InfrastructureOnboardingPage() {
         : new Set(depots.map((depot) => depot.id));
 
     depots.forEach((depot) => {
+      if (!depot.location) {
+        return;
+      }
+
       const [lng, lat] =
         depot.location.coordinates;
 
@@ -357,7 +550,10 @@ export default function InfrastructureOnboardingPage() {
       (depot) => depot.id === destinationId
     );
 
-    if (!source || !destination) {
+    if (
+      !source?.location ||
+      !destination?.location
+    ) {
       return;
     }
 
@@ -401,15 +597,17 @@ export default function InfrastructureOnboardingPage() {
     }
 
     const bounds = L.latLngBounds(
-      depots.map((depot) => {
-        const [lng, lat] =
-          depot.location.coordinates;
+      depots
+        .filter((depot) => depot.location)
+        .map((depot) => {
+          const [lng, lat] =
+            depot.location!.coordinates;
 
-        return [lat, lng] as [
-          number,
-          number
-        ];
-      })
+          return [lat, lng] as [
+            number,
+            number
+          ];
+        })
     );
 
     window.setTimeout(() => {
@@ -751,157 +949,188 @@ export default function InfrastructureOnboardingPage() {
       return;
     }
 
-    const newDepot: Depot = {
-      id: crypto.randomUUID(),
+    setDepotError(null);
+    setDepotSaving(true);
 
-      name:
-        depotForm.name.trim(),
+    void runTransition(async () => {
+      const payload: DepotCreateInput = {
+        name: depotForm.name.trim(),
 
-      address:
-        depotForm.address.trim(),
+        address: depotForm.address.trim(),
 
-      location: {
-        type: "Point",
+        location: {
+          type: "Point",
+
+          /*
+           * GeoJSON uses:
+           * [longitude, latitude]
+           */
+
+          coordinates: [
+            selectedLocation.lng,
+            selectedLocation.lat,
+          ],
+        },
+
+        parking_capacity:
+          Number(
+            depotForm.parking_capacity
+          ) || 0,
+
+        workshop_available:
+          depotForm.workshop_available,
+
+        fuel_station_available:
+          depotForm.fuel_station_available,
+
+        charging_available:
+          depotForm.charging_available,
+
+        charger_count:
+          Number(
+            depotForm.charger_count
+          ) || 0,
+
+        maintenance_bays:
+          Number(
+            depotForm.maintenance_bays
+          ) || 0,
+
+        operating_hours: {
+          open:
+            depotForm.operating_open,
+
+          close:
+            depotForm.operating_close,
+        },
+
+        depot_manager_name:
+          depotForm.depot_manager_name.trim(),
+
+        depot_manager_contact:
+          depotForm.depot_manager_contact.trim(),
+      };
+
+      try {
+        const created = await createDepot(
+          payload
+        );
+
+        const newDepot = toDepotView(created);
+
+        setDepots((current) => [
+          ...current,
+          newDepot,
+        ]);
 
         /*
-         * GeoJSON uses:
-         * [longitude, latitude]
+         * Remove the temporary draggable marker.
+         * The permanent depot marker will be created by
+         * the depot marker effect.
          */
 
-        coordinates: [
-          selectedLocation.lng,
-          selectedLocation.lat,
-        ],
-      },
+        if (previewMarkerRef.current) {
+          previewMarkerRef.current.remove();
+          previewMarkerRef.current = null;
+        }
 
-      parking_capacity:
-        Number(
-          depotForm.parking_capacity
-        ) || 0,
-
-      workshop_available:
-        depotForm.workshop_available,
-
-      fuel_station_available:
-        depotForm.fuel_station_available,
-
-      charging_available:
-        depotForm.charging_available,
-
-      charger_count:
-        Number(
-          depotForm.charger_count
-        ) || 0,
-
-      maintenance_bays:
-        Number(
-          depotForm.maintenance_bays
-        ) || 0,
-
-      operating_hours: {
-        open:
-          depotForm.operating_open,
-
-        close:
-          depotForm.operating_close,
-      },
-
-      depot_manager_name:
-        depotForm.depot_manager_name.trim(),
-
-      depot_manager_contact:
-        depotForm.depot_manager_contact.trim(),
-    };
-
-    /*
-     * Add the confirmed depot to React state.
-     * The persistence effect automatically saves it
-     * to sessionStorage.
-     */
-
-    setDepots((current) => [
-      ...current,
-      newDepot,
-    ]);
-
-    /*
-     * Remove the temporary draggable marker.
-     * The permanent depot marker will be created by
-     * the depot marker effect.
-     */
-
-    if (previewMarkerRef.current) {
-      previewMarkerRef.current.remove();
-      previewMarkerRef.current = null;
-    }
-
-    setSelectedLocation(null);
-    setSearchResults([]);
-    setDepotForm(
-      EMPTY_DEPOT_FORM
-    );
-
-    setActivePanel("none");
-    setIsAddingDepot(true);
-
-    /*
-     * Focus the map on all depots.
-     */
-
-    window.setTimeout(() => {
-      if (!mapRef.current) {
-        return;
-      }
-
-      const allDepots = [
-        ...depots,
-        newDepot,
-      ];
-
-      if (allDepots.length === 1) {
-        const [lng, lat] =
-          newDepot.location.coordinates;
-
-        mapRef.current.flyTo(
-          [lat, lng],
-          14,
-          {
-            duration: 0.8,
-          }
+        setSelectedLocation(null);
+        setSearchResults([]);
+        setDepotForm(
+          EMPTY_DEPOT_FORM
         );
-      } else {
-        const bounds =
-          L.latLngBounds(
-            allDepots.map(
-              (depot) => {
-                const [
-                  lng,
-                  lat,
-                ] =
-                  depot.location
-                    .coordinates;
 
-                return [
-                  lat,
-                  lng,
-                ] as [
+        setActivePanel("none");
+
+        /*
+         * Focus the map on all depots.
+         */
+
+        window.setTimeout(() => {
+          if (!mapRef.current) {
+            return;
+          }
+
+          if (depots.length === 0) {
+            if (!newDepot.location) {
+              return;
+            }
+
+            const [lng, lat] =
+              newDepot.location.coordinates;
+
+            mapRef.current.flyTo(
+              [lat, lng],
+              14,
+              {
+                duration: 0.8,
+              }
+            );
+          } else {
+            const withLocation = [
+              ...depots,
+              newDepot,
+            ].filter(
+              (depot) => depot.location
+            );
+
+            if (withLocation.length === 0) {
+              return;
+            }
+
+            const bounds =
+              L.latLngBounds(
+                withLocation.map(
+                  (depot) => {
+                    const location =
+                      depot.location;
+
+                    if (!location) {
+                      return null;
+                    }
+
+                    const [
+                      lng,
+                      lat,
+                    ] =
+                      location.coordinates;
+
+                    return [
+                      lat,
+                      lng,
+                    ] as [
+                        number,
+                        number
+                      ];
+                  }
+                ).filter(
+                  (point): point is [
                     number,
                     number
-                  ];
-              }
-            )
-          );
+                  ] => point !== null
+                )
+              );
 
-        mapRef.current.fitBounds(
-          bounds,
-          {
-            padding: [70, 70],
-            maxZoom: 14,
-            animate: true,
+            mapRef.current.fitBounds(
+              bounds,
+              {
+                padding: [70, 70],
+                maxZoom: 14,
+                animate: true,
+              }
+            );
           }
+        }, 50);
+      } catch (submitError) {
+        setDepotError(
+          submitError instanceof Error
+            ? submitError.message
+            : "Could not save the depot. Please try again."
         );
+      } finally {
+        setDepotSaving(false);
       }
-    }, 50);
+    });
   }
 
   /*
@@ -922,8 +1151,10 @@ export default function InfrastructureOnboardingPage() {
 
     setSourceId("");
     setDestinationId("");
-
-    setIsAddingRoute(false);
+    setRouteForm(
+      EMPTY_ROUTE_FORM
+    );
+    setRouteError(null);
   }
 
   /*
@@ -933,6 +1164,13 @@ export default function InfrastructureOnboardingPage() {
    */
 
   function confirmRoute() {
+    if (!routeForm.name.trim()) {
+      alert(
+        "Please enter a route name."
+      );
+      return;
+    }
+
     if (
       !sourceId ||
       !destinationId
@@ -953,19 +1191,146 @@ export default function InfrastructureOnboardingPage() {
       return;
     }
 
-    const newRoute: RouteData = {
-      id: crypto.randomUUID(),
-      sourceId,
-      destinationId,
-    };
+    if (routeForm.isRecurring) {
+      if (
+        routeForm.pattern !== "custom" &&
+        routeForm.pattern === "daily_n" &&
+        (Number(routeForm.intervalDays) || 0) < 1
+      ) {
+        alert(
+          "Interval must be at least 1 day."
+        );
+        return;
+      }
 
-    setRoutes((current) => [
-      ...current,
-      newRoute,
-    ]);
+      if (
+        (routeForm.pattern === "weekly" ||
+          routeForm.pattern === "weekly_n") &&
+        routeForm.weekDays.length === 0
+      ) {
+        alert(
+          "Select at least one weekday for a weekly recurrence."
+        );
+        return;
+      }
 
-    setActivePanel("none");
-    setIsAddingRoute(true);
+      if (
+        routeForm.pattern === "weekly_n" &&
+        (Number(routeForm.weekInterval) || 0) < 1
+      ) {
+        alert(
+          "Week interval must be at least 1."
+        );
+        return;
+      }
+
+      if (
+        routeForm.pattern === "monthly" &&
+        !(
+          Number(routeForm.monthDay) >= 1 &&
+          Number(routeForm.monthDay) <= 31
+        )
+      ) {
+        alert(
+          "Day of month must be between 1 and 31."
+        );
+        return;
+      }
+
+      if (
+        routeForm.pattern === "custom" &&
+        !routeForm.customRule.trim()
+      ) {
+        alert(
+          "Enter a custom recurrence rule."
+        );
+        return;
+      }
+    }
+
+    if (
+      routeForm.startDate &&
+      routeForm.endDate &&
+      routeForm.endDate <
+        routeForm.startDate
+    ) {
+      alert(
+        "End date cannot be before the start date."
+      );
+      return;
+    }
+
+    setRouteError(null);
+    setRouteSaving(true);
+
+    void runTransition(async () => {
+      const recurrence = buildRecurrenceRule(
+        routeForm
+      );
+
+      try {
+        const created =
+          await createJobTemplate({
+            name: routeForm.name.trim(),
+
+            description:
+              routeForm.description.trim() ||
+              undefined,
+
+            source_depot_id: sourceId,
+
+            destination_depot_id:
+              destinationId,
+
+            is_recurring:
+              routeForm.isRecurring,
+
+            recurrence_rule:
+              routeForm.isRecurring
+                ? recurrence
+                : "",
+
+            is_permanent:
+              routeForm.isPermanent,
+
+            start_date:
+              routeForm.startDate ||
+              undefined,
+
+            end_date:
+              routeForm.endDate ||
+              undefined,
+
+            status: routeForm.status,
+          });
+
+        setRoutes((current) => [
+          ...current,
+          {
+            id: created.id,
+
+            sourceId:
+              created.source_depot_id,
+
+            destinationId:
+              created.destination_depot_id ??
+              "",
+
+            name: created.name,
+          },
+        ]);
+
+        setActivePanel("none");
+      } catch (submitError) {
+        setRouteError(
+          submitError instanceof Error
+            ? submitError.message
+            : "Could not save the route. Please try again."
+        );
+      } finally {
+        setRouteSaving(false);
+      }
+    });
   }
 
   /*
@@ -995,7 +1360,8 @@ export default function InfrastructureOnboardingPage() {
 
   const canContinue =
     depots.length >= 2 &&
-    routes.length >= 1;
+    routes.length >= 1 &&
+    !loadError;
 
   function handleContinue() {
     if (!canContinue) {
@@ -1003,32 +1369,14 @@ export default function InfrastructureOnboardingPage() {
     }
 
     /*
-     * At this stage the data exists locally.
-     *
-     * When the backend is built, this is where we'll POST:
-     *
-     * depots
-     * routes
-     *
-     * to the backend.
+     * Depots and routes have already been
+     * persisted to the backend on each
+     * confirm action.
      */
 
-    console.log(
-      "Infrastructure data:",
-      {
-        depots,
-        routes,
-      }
-    );
-
-    /*
-     * The data has already been persisted
-     * to sessionStorage by the effect above.
-     */
-
-    navigate(
-      "/onboarding/fleet"
-    );
+    navigate("/onboarding/fleet", {
+      viewTransition: true,
+    });
   }
 
   /*
@@ -1112,6 +1460,22 @@ export default function InfrastructureOnboardingPage() {
               </div>
             </div>
 
+            {loadError && (
+              <div className="infrastructure-load-error">
+                <p>
+                  {loadError}
+                </p>
+
+                <button
+                  className="load-retry"
+                  type="button"
+                  onClick={fetchInfrastructure}
+                >
+                  Retry ↻
+                </button>
+              </div>
+            )}
+
             {activePanel ===
               "none" && (
                 <div className="choice-section">
@@ -1188,6 +1552,36 @@ export default function InfrastructureOnboardingPage() {
                               <strong>
                                 {
                                   depot.name
+                                }
+                              </strong>
+                            </div>
+                          )
+                        )}
+
+                        {routes.map(
+                          (
+                            route,
+                            index
+                          ) => (
+                            <div
+                              className="summary-row route-row"
+                              key={
+                                route.id
+                              }
+                            >
+                              <span>
+                                R{String(
+                                  index +
+                                  1
+                                ).padStart(
+                                  2,
+                                  "0"
+                                )}
+                              </span>
+
+                              <strong>
+                                {
+                                  route.name
                                 }
                               </strong>
                             </div>
@@ -1594,10 +1988,20 @@ export default function InfrastructureOnboardingPage() {
                       />
                     </label>
 
+                    {depotError && (
+                      <p
+                        className="panel-error"
+                        role="alert"
+                      >
+                        {depotError}
+                      </p>
+                    )}
+
                     <button
                       className="primary-action"
                       type="button"
                       disabled={
+                        depotSaving ||
                         !depotForm.name.trim() ||
                         !depotForm.address.trim() ||
                         !selectedLocation
@@ -1606,7 +2010,9 @@ export default function InfrastructureOnboardingPage() {
                         confirmDepot
                       }
                     >
-                      Confirm Depot
+                      {depotSaving
+                        ? "SAVING…"
+                        : "Confirm Depot"}
                       <span>
                         →
                       </span>
@@ -1755,10 +2161,424 @@ export default function InfrastructureOnboardingPage() {
                     </p>
                   </div>
 
+                  <div className="route-extra-fields">
+                    <label className="field">
+                      <span>
+                        Route name{" "}
+                        <em>*</em>
+                      </span>
+
+                      <input
+                        type="text"
+                        placeholder="e.g. North–South shuttle"
+                        value={
+                          routeForm.name
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setRouteForm(
+                            (current) => ({
+                              ...current,
+                              name: event.target.value,
+                            })
+                          )
+                        }
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>
+                        Description
+                      </span>
+
+                      <textarea
+                        rows={2}
+                        placeholder="Optional notes about this route"
+                        value={
+                          routeForm.description
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setRouteForm(
+                            (current) => ({
+                              ...current,
+                              description:
+                                event.target.value,
+                            })
+                          )
+                        }
+                      />
+                    </label>
+
+                    <div className="route-toggles">
+                      <button
+                        type="button"
+                        className={`route-toggle${
+                          routeForm.isRecurring
+                            ? " is-on"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setRouteForm(
+                            (current) => ({
+                              ...current,
+                              isRecurring:
+                                !current.isRecurring,
+                            })
+                          )
+                        }
+                      >
+                        Recurring
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`route-toggle${
+                          routeForm.isPermanent
+                            ? " is-on"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setRouteForm(
+                            (current) => ({
+                              ...current,
+                              isPermanent:
+                                !current.isPermanent,
+                            })
+                          )
+                        }
+                      >
+                        Permanent
+                      </button>
+                    </div>
+
+                    {routeForm.isRecurring && (
+                      <div className="recurrence-section">
+                        <label className="field">
+                          <span>
+                            Recurrence pattern
+                          </span>
+
+                          <select
+                            value={
+                              routeForm.pattern
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              setRouteForm(
+                                (current) => ({
+                                  ...current,
+                                  pattern: event
+                                    .target
+                                    .value as RecurrencePattern,
+                                })
+                              )
+                            }
+                          >
+                            {RECURRENCE_PATTERNS.map(
+                              (
+                                pattern
+                              ) => (
+                                <option
+                                  key={
+                                    pattern.value
+                                  }
+                                  value={
+                                    pattern.value
+                                  }
+                                >
+                                  {
+                                    pattern.label
+                                  }
+                                </option>
+                              )
+                            )}
+                          </select>
+                        </label>
+
+                        {(routeForm.pattern ===
+                          "daily_n" ||
+                          routeForm.pattern ===
+                            "weekly" ||
+                          routeForm.pattern ===
+                            "weekly_n" ||
+                          routeForm.pattern ===
+                            "monthly") && (
+                          <p className="recurrence-hint">
+                            Saved rule:{" "}
+                            <code>
+                              {
+                                buildRecurrenceRule(
+                                  routeForm
+                                )
+                              }
+                            </code>
+                          </p>
+                        )}
+
+                        {routeForm.pattern ===
+                          "custom" && (
+                          <label className="field">
+                            <span>
+                              Custom rule{" "}
+                              <em>*</em>
+                            </span>
+
+                            <input
+                              type="text"
+                              placeholder="e.g. FREQ=WEEKLY;BYDAY=MO,WE"
+                              value={
+                                routeForm.customRule
+                              }
+                              onChange={(
+                                event
+                              ) =>
+                                setRouteForm(
+                                  (current) => ({
+                                    ...current,
+                                    customRule:
+                                      event.target.value,
+                                  })
+                                )
+                              }
+                            />
+                          </label>
+                        )}
+
+                        {(routeForm.pattern ===
+                          "daily_n" ||
+                          routeForm.pattern ===
+                            "weekly_n") && (
+                          <label className="field">
+                            <span>
+                              {routeForm.pattern ===
+                              "daily_n"
+                                ? "Every N days"
+                                : "Every N weeks"}
+                            </span>
+
+                            <input
+                              type="number"
+                              min={1}
+                              value={
+                                routeForm.pattern ===
+                                "daily_n"
+                                  ? routeForm.intervalDays
+                                  : routeForm.weekInterval
+                              }
+                              onChange={(
+                                event
+                              ) =>
+                                setRouteForm(
+                                  (current) => ({
+                                    ...current,
+                                    [routeForm.pattern ===
+                                      "daily_n"
+                                      ? "intervalDays"
+                                      : "weekInterval"]:
+                                      event.target.value,
+                                  } as RouteForm)
+                                )
+                              }
+                            />
+                          </label>
+                        )}
+
+                        {(routeForm.pattern ===
+                          "weekly" ||
+                          routeForm.pattern ===
+                            "weekly_n") && (
+                          <div className="field">
+                            <span>
+                              Days of week
+                            </span>
+
+                            <div className="weekday-chips">
+                              {WEEKDAY_OPTIONS.map(
+                                (
+                                  weekday
+                                ) => {
+                                  const selected =
+                                    routeForm.weekDays.includes(
+                                      weekday.value
+                                    );
+
+                                  return (
+                                    <button
+                                      key={
+                                        weekday.value
+                                      }
+                                      type="button"
+                                      className={`weekday-chip${
+                                        selected
+                                          ? " is-on"
+                                          : ""
+                                      }`}
+                                      onClick={() =>
+                                        setRouteForm(
+                                          (
+                                            current
+                                          ) => ({
+                                            ...current,
+                                            weekDays:
+                                              selected
+                                                ? current.weekDays.filter(
+                                                    (
+                                                      value
+                                                    ) =>
+                                                      value !==
+                                                      weekday.value
+                                                  )
+                                                : [
+                                                    ...current.weekDays,
+                                                    weekday.value,
+                                                  ],
+                                          })
+                                        )
+                                      }
+                                    >
+                                      {
+                                        weekday.label
+                                      }
+                                    </button>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {routeForm.pattern ===
+                          "monthly" && (
+                          <label className="field">
+                            <span>
+                              Day of month
+                            </span>
+
+                            <input
+                              type="number"
+                              min={1}
+                              max={31}
+                              value={
+                                routeForm.monthDay
+                              }
+                              onChange={(
+                                event
+                              ) =>
+                                setRouteForm(
+                                  (current) => ({
+                                    ...current,
+                                    monthDay:
+                                      event.target.value,
+                                  })
+                                )
+                              }
+                            />
+                          </label>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="form-grid">
+                      <label className="field">
+                        <span>
+                          Start date
+                        </span>
+
+                        <input
+                          type="date"
+                          value={
+                            routeForm.startDate
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            setRouteForm(
+                              (current) => ({
+                                ...current,
+                                startDate:
+                                  event.target.value,
+                              })
+                            )
+                          }
+                        />
+                      </label>
+
+                      <label className="field">
+                        <span>
+                          End date
+                        </span>
+
+                        <input
+                          type="date"
+                          value={
+                            routeForm.endDate
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            setRouteForm(
+                              (current) => ({
+                                ...current,
+                                endDate:
+                                  event.target.value,
+                              })
+                            )
+                          }
+                        />
+                      </label>
+                    </div>
+
+                    <label className="field">
+                      <span>
+                        Status
+                      </span>
+
+                      <select
+                        value={
+                          routeForm.status
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setRouteForm(
+                            (current) => ({
+                              ...current,
+                              status: event.target
+                                .value as JobTemplateStatus,
+                            })
+                          )
+                        }
+                      >
+                        <option value="ACTIVE">
+                          Active
+                        </option>
+
+                        <option value="PAUSED">
+                          Paused
+                        </option>
+                      </select>
+                    </label>
+                  </div>
+
+                  {routeError && (
+                    <p
+                      className="panel-error"
+                      role="alert"
+                    >
+                      {routeError}
+                    </p>
+                  )}
+
                   <button
                     className="primary-action"
                     type="button"
                     disabled={
+                      routeSaving ||
+                      !routeForm.name.trim() ||
                       !sourceId ||
                       !destinationId ||
                       sourceId ===
@@ -1768,7 +2588,9 @@ export default function InfrastructureOnboardingPage() {
                       confirmRoute
                     }
                   >
-                    Confirm Route
+                    {routeSaving
+                      ? "SAVING…"
+                      : "Confirm Route"}
                     <span>
                       →
                     </span>

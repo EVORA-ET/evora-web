@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { createOrganization } from "../../lib/api";
+import { supabase } from "../../lib/supabase";
+import { useTransition } from "../../app/useTransition";
 import "./CreateOrganizationPage.css";
 
 interface OrganizationFormData {
@@ -30,12 +33,31 @@ const initialForm: OrganizationFormData = {
   businessHoursEnd: "18:00",
 };
 
+const COUNTRY_LABELS: Record<string, string> = {
+  india: "India",
+  usa: "United States",
+  uk: "United Kingdom",
+  germany: "Germany",
+  other: "Other",
+};
+
+const INDUSTRY_LABELS: Record<string, string> = {
+  logistics: "Logistics",
+  transportation: "Transportation",
+  manufacturing: "Manufacturing",
+  distribution: "Distribution",
+  other: "Other",
+};
+
 function CreateOrganizationPage() {
   const navigate = useNavigate();
+  const { runTransition } = useTransition();
 
   const [form, setForm] = useState<OrganizationFormData>(initialForm);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const updateField = (
     field: keyof OrganizationFormData,
@@ -55,13 +77,19 @@ function CreateOrganizationPage() {
     const file = event.target.files?.[0];
 
     if (!file) {
+      setLogoFile(null);
+      setLogoPreview(null);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       setError("Logo must be smaller than 5MB.");
+      event.target.value = "";
       return;
     }
+
+    setLogoFile(file);
+    setError("");
 
     const reader = new FileReader();
 
@@ -70,6 +98,49 @@ function CreateOrganizationPage() {
     };
 
     reader.readAsDataURL(file);
+  };
+
+  const uploadLogo = async (): Promise<string | null> => {
+    if (!logoFile) {
+      return null;
+    }
+
+    const { data: authData } = await supabase.auth.getSession();
+    const userId = authData.session?.user?.id;
+
+    if (!userId) {
+      return null;
+    }
+
+    const extension = logoFile.name.split(".").pop() ?? "png";
+    const path = `${userId}/org-logo-${Date.now()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("organization-logos")
+      .upload(path, logoFile, {
+        contentType: logoFile.type,
+      });
+
+    if (uploadError) {
+      throw new Error(`Logo upload failed: ${uploadError.message}`);
+    }
+
+    const { data } = supabase.storage
+      .from("organization-logos")
+      .getPublicUrl(path);
+
+    return data.publicUrl;
+  };
+
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+  const removeLogo = () => {
+    setLogoFile(null);
+    setLogoPreview(null);
+
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
   };
 
   const saveDraft = () => {
@@ -89,12 +160,46 @@ function CreateOrganizationPage() {
       return;
     }
 
-    localStorage.setItem(
-      "evora-organization",
-      JSON.stringify(form),
-    );
+    setBusy(true);
+    setError("");
 
-    navigate("/onboarding/infrastructure");
+    void runTransition(async () => {
+      try {
+        const logoUrl = await uploadLogo();
+
+        await createOrganization({
+          name: form.organizationName.trim(),
+          industry: INDUSTRY_LABELS[form.industry] ?? form.industry,
+          country: COUNTRY_LABELS[form.operatingCountry] ?? "",
+          headquarters_address: form.headquartersAddress,
+          operating_cities: form.operatingCities
+            .split(",")
+            .map((city) => city.trim())
+            .filter(Boolean),
+          gst_number: form.taxNumber,
+          website: form.website,
+          currency: form.currency,
+          logo_url: logoUrl ?? undefined,
+          business_hours: {
+            start: form.businessHoursStart,
+            end: form.businessHoursEnd,
+          },
+        });
+
+        navigate("/onboarding/infrastructure", {
+          replace: true,
+          viewTransition: true,
+        });
+      } catch (submitError) {
+        setError(
+          submitError instanceof Error
+            ? submitError.message
+            : "Could not create your organization. Please try again.",
+        );
+      } finally {
+        setBusy(false);
+      }
+    });
   };
 
   return (
@@ -133,6 +238,7 @@ function CreateOrganizationPage() {
           <div className="logo-upload">
             <input
               id="organization-logo"
+              ref={logoInputRef}
               type="file"
               accept=".png,.jpg,.jpeg"
               onChange={handleLogoChange}
@@ -141,11 +247,22 @@ function CreateOrganizationPage() {
 
             <label htmlFor="organization-logo">
               {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Organization logo preview"
-                  className="logo-upload__preview"
-                />
+                <span className="logo-upload__preview-wrap">
+                  <img
+                    src={logoPreview}
+                    alt="Organization logo preview"
+                    className="logo-upload__preview"
+                  />
+
+                  <button
+                    type="button"
+                    className="logo-upload__remove"
+                    aria-label="Remove logo"
+                    onClick={removeLogo}
+                  >
+                    ✕
+                  </button>
+                </span>
               ) : (
                 <>
                   <span
@@ -372,8 +489,8 @@ function CreateOrganizationPage() {
               Save as Draft
             </Button>
 
-            <Button type="submit">
-              Complete Setup →
+            <Button type="submit" disabled={busy}>
+              {busy ? "CREATING…" : "Complete Setup →"}
             </Button>
           </div>
         </form>

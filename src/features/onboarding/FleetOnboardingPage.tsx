@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  createVehicle,
+  getVehicleBulkUploadStatus,
+  listVehicles,
+  uploadVehiclesCsv,
+} from "../../lib/api";
+import type {
+  Vehicle,
+  VehicleBulkUploadStatus,
+  VehicleCreateInput,
+} from "../../lib/api";
+import { useTransition } from "../../app/useTransition";
 import "./FleetOnboardingPage.css";
 
 type FleetType = "ice" | "ev" | null;
@@ -24,41 +36,34 @@ interface VehicleFormData {
   gvw_kg: string;
 }
 
-const FLEET_STORAGE_KEY = "evora-fleet-onboarding";
-
-interface SavedFleetState {
-  iceVehicles: VehicleFormData[];
-  evVehicles: VehicleFormData[];
-}
-
-function loadSavedFleetState(): SavedFleetState {
-  try {
-    const saved = localStorage.getItem(FLEET_STORAGE_KEY);
-
-    if (!saved) {
-      return {
-        iceVehicles: [],
-        evVehicles: [],
-      };
-    }
-
-    const parsed = JSON.parse(saved) as Partial<SavedFleetState>;
-
-    return {
-      iceVehicles: Array.isArray(parsed.iceVehicles)
-        ? parsed.iceVehicles
-        : [],
-      evVehicles: Array.isArray(parsed.evVehicles)
-        ? parsed.evVehicles
-        : [],
-    };
-  } catch {
-    return {
-      iceVehicles: [],
-      evVehicles: [],
-    };
-  }
-}
+const CSV_TEMPLATE_HEADERS = [
+  "registration_number",
+  "vin",
+  "chassis_number",
+  "manufacturer",
+  "model",
+  "variant",
+  "manufacture_year",
+  "purchase_date",
+  "vehicle_type",
+  "fuel_type",
+  "engine_cc",
+  "fuel_tank_capacity",
+  "battery_capacity_kwh",
+  "mileage_kmpl",
+  "payload_kg",
+  "seating_capacity",
+  "gvw_kg",
+  "status",
+  "assigned_driver_id",
+  "odometer_km",
+  "avg_daily_km",
+  "avg_monthly_km",
+  "trips_per_day",
+  "fuel_cost_per_month",
+  "maintenance_cost_per_month",
+  "insurance_expiry",
+];
 
 const initialForm: VehicleFormData = {
   registration_number: "",
@@ -82,6 +87,7 @@ const initialForm: VehicleFormData = {
 
 export default function FleetOnboardingPage() {
   const navigate = useNavigate();
+  const { runTransition } = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeForm, setActiveForm] = useState<FleetType>(null);
@@ -89,55 +95,82 @@ export default function FleetOnboardingPage() {
   const [formData, setFormData] =
     useState<VehicleFormData>(initialForm);
 
-  const [iceVehicles, setIceVehicles] = useState<VehicleFormData[]>(
-    () => loadSavedFleetState().iceVehicles
-  );
-  const [evVehicles, setEvVehicles] = useState<VehicleFormData[]>(
-    () => loadSavedFleetState().evVehicles
-  );
+  const [iceVehicles, setIceVehicles] = useState<Vehicle[]>([]);
+  const [evVehicles, setEvVehicles] = useState<Vehicle[]>([]);
+
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [vehicleError, setVehicleError] = useState<string | null>(null);
+  const [vehicleSaving, setVehicleSaving] = useState(false);
+
+  const [importState, setImportState] = useState<
+    | { phase: "idle" }
+    | { phase: "uploading" }
+    | { phase: "processing"; processed: number; total: number }
+    | { phase: "done"; status: VehicleBulkUploadStatus }
+    | { phase: "failed"; message: string }
+  >({ phase: "idle" });
+
+  function splitServerVehicles(
+    serverVehicles: Vehicle[],
+  ): void {
+    setIceVehicles(
+      serverVehicles.filter(
+        (vehicle) => vehicle.fuel_type !== "ev"
+      )
+    );
+
+    setEvVehicles(
+      serverVehicles.filter(
+        (vehicle) => vehicle.fuel_type === "ev"
+      )
+    );
+  }
+
+  function fetchFleet() {
+    void runTransition(async () => {
+      setLoadError(null);
+
+      try {
+        const serverVehicles = await listVehicles();
+
+        splitServerVehicles(serverVehicles);
+      } catch {
+        setLoadError(
+          "Could not load your fleet from the server. Please retry."
+        );
+      }
+    });
+  }
 
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        FLEET_STORAGE_KEY,
-        JSON.stringify({
-          iceVehicles,
-          evVehicles,
-        })
-      );
-    } catch {
-      // Ignore localStorage errors.
-    }
-  }, [iceVehicles, evVehicles]);
+    fetchFleet();
+  }, []);
 
-  function saveFleetProgress() {
-    try {
-      localStorage.setItem(
-        FLEET_STORAGE_KEY,
-        JSON.stringify({
-          iceVehicles,
-          evVehicles,
-        })
-      );
-    } catch {
-      // Ignore localStorage errors.
-    }
+  function handleBack() {
+    navigate("/onboarding/infrastructure", {
+      viewTransition: true,
+    });
   }
 
   function handleSaveAndFinishLater() {
-    saveFleetProgress();
-    //navigate("/dashboard");
+    /*
+     * Vehicles are persisted on the backend when each
+     * one is confirmed, so finishing later simply
+     * returns to the dashboard.
+     */
+
+    navigate("/dashboard", {
+      viewTransition: true,
+    });
   }
 
   function handleContinueToFleetBaseline() {
     if (totalVehicles < 1) return;
 
-    saveFleetProgress();
-    navigate("/dashboard");
-  }
-
-  function handleBack() {
-    navigate("/onboarding/infrastructure");
+    navigate("/dashboard", {
+      viewTransition: true,
+    });
   }
 
   function openVehicleForm(type: "ice" | "ev") {
@@ -172,44 +205,107 @@ export default function FleetOnboardingPage() {
       !formData.manufacture_year ||
       !formData.purchase_date ||
       !formData.vehicle_type ||
-      !formData.fuel_type
+      !formData.fuel_type ||
+      !formData.mileage_kmpl ||
+      !formData.payload_kg ||
+      !formData.seating_capacity ||
+      !formData.gvw_kg
     ) {
       return;
     }
 
-    if (activeForm === "ice") {
-      setIceVehicles((prev) => [...prev, formData]);
-    }
+    const addTo = activeForm === "ev"
+      ? setEvVehicles
+      : setIceVehicles;
 
-    if (activeForm === "ev") {
-      setEvVehicles((prev) => [...prev, formData]);
-    }
+    setVehicleError(null);
+    setVehicleSaving(true);
 
-    closeVehicleForm();
+    void runTransition(async () => {
+      const payload: VehicleCreateInput = {
+        registration_number:
+          formData.registration_number.trim(),
+
+        manufacturer:
+          formData.manufacturer.trim(),
+
+        model:
+          formData.model.trim(),
+
+        manufacture_year:
+          Number(formData.manufacture_year),
+
+        purchase_date:
+          formData.purchase_date,
+
+        vehicle_type:
+          formData.vehicle_type,
+
+        fuel_type:
+          formData.fuel_type,
+
+        mileage_kmpl:
+          formData.mileage_kmpl,
+
+        payload_kg:
+          formData.payload_kg,
+
+        seating_capacity:
+          Number(formData.seating_capacity),
+
+        gvw_kg:
+          formData.gvw_kg,
+      };
+
+      if (formData.vin.trim()) {
+        payload.vin = formData.vin.trim();
+      }
+
+      if (formData.chassis_number.trim()) {
+        payload.chassis_number = formData.chassis_number.trim();
+      }
+
+      if (formData.variant.trim()) {
+        payload.variant = formData.variant.trim();
+      }
+
+      if (formData.engine_cc.trim()) {
+        payload.engine_cc = Number(formData.engine_cc);
+      }
+
+      if (formData.fuel_tank_capacity.trim()) {
+        payload.fuel_tank_capacity =
+          formData.fuel_tank_capacity;
+      }
+
+      if (formData.battery_capacity_kwh.trim()) {
+        payload.battery_capacity_kwh =
+          formData.battery_capacity_kwh;
+      }
+
+      try {
+        const created = await createVehicle(
+          payload
+        );
+
+        addTo((prev) => [...prev, created]);
+
+        closeVehicleForm();
+      } catch (submitError) {
+        setVehicleError(
+          submitError instanceof Error
+            ? submitError.message
+            : "Could not save the vehicle. Please try again."
+        );
+      } finally {
+        setVehicleSaving(false);
+      }
+    });
   }
 
   function downloadTemplate() {
-    const headers = [
-      "registration_number",
-      "vin",
-      "chassis_number",
-      "manufacturer",
-      "model",
-      "variant",
-      "manufacture_year",
-      "purchase_date",
-      "vehicle_type",
-      "fuel_type",
-      "engine_cc",
-      "fuel_tank_capacity",
-      "battery_capacity_kwh",
-      "mileage_kmpl",
-      "payload_kg",
-      "seating_capacity",
-      "gvw_kg",
-    ];
-
-    const csvContent = headers.join(",") + "\n";
+    const csvContent =
+      CSV_TEMPLATE_HEADERS.join(",") + "\n";
 
     const blob = new Blob([csvContent], {
       type: "text/csv;charset=utf-8;",
@@ -234,9 +330,118 @@ export default function FleetOnboardingPage() {
 
     if (!file) return;
 
-    console.log("Fleet CSV selected:", file.name);
+    event.target.value = "";
 
-    // Backend / CSV parsing will be connected later.
+    const extension = file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase();
+
+    if (extension !== "csv" && extension !== "xlsx" && extension !== "xls") {
+      setImportState({
+        phase: "failed",
+        message: "Unsupported file format. Use .csv, .xlsx, or .xls",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setImportState({
+        phase: "failed",
+        message: "File must be smaller than 5MB",
+      });
+      return;
+    }
+
+    setImportState({ phase: "uploading" });
+
+    void runTransition(async () => {
+      try {
+        const response = await uploadVehiclesCsv(file);
+
+        if (response.status === "completed") {
+          setImportState({ phase: "done", status: response });
+
+          const serverVehicles = await listVehicles();
+
+          splitServerVehicles(serverVehicles);
+          return;
+        }
+
+        if (response.status === "failed") {
+          setImportState({
+            phase: "failed",
+            message: "Import failed while processing rows.",
+          });
+          return;
+        }
+
+        void pollUpload(response.id);
+      } catch (uploadError) {
+        setImportState({
+          phase: "failed",
+          message:
+            uploadError instanceof Error
+              ? uploadError.message
+              : "Could not upload the file. Please try again.",
+        });
+      }
+    });
+  }
+
+  async function pollUpload(uploadId: string) {
+    const sleep = (ms: number) =>
+      new Promise((resolve) =>
+        window.setTimeout(resolve, ms)
+      );
+
+    const deadline = Date.now() + 2 * 60 * 1000;
+
+    while (Date.now() < deadline) {
+      await sleep(2000);
+
+      let status: VehicleBulkUploadStatus;
+
+      try {
+        status = await getVehicleBulkUploadStatus(uploadId);
+      } catch {
+        continue;
+      }
+
+      if (status.status === "processing") {
+        setImportState({
+          phase: "processing",
+          processed: status.processed_rows,
+          total: status.total_rows,
+        });
+        continue;
+      }
+
+      if (status.status === "completed") {
+        setImportState({ phase: "done", status });
+
+        try {
+          const serverVehicles =
+            await listVehicles();
+
+          splitServerVehicles(serverVehicles);
+        } catch {
+          // list refresh will be visible after next visit
+        }
+        return;
+      }
+
+      if (status.status === "failed") {
+        setImportState({ phase: "failed", message: "Import failed while processing rows." });
+        return;
+      }
+    }
+
+    setImportState({
+      phase: "failed",
+      message:
+        "Import is taking longer than expected. Check back on your fleet shortly.",
+    });
   }
 
   const totalVehicles =
@@ -251,7 +456,11 @@ export default function FleetOnboardingPage() {
     Boolean(formData.manufacture_year) &&
     Boolean(formData.purchase_date) &&
     Boolean(formData.vehicle_type) &&
-    Boolean(formData.fuel_type);
+    Boolean(formData.fuel_type) &&
+    Boolean(formData.mileage_kmpl) &&
+    Boolean(formData.payload_kg) &&
+    Boolean(formData.seating_capacity) &&
+    Boolean(formData.gvw_kg);
 
   return (
     <div className="fleet-page">
@@ -346,6 +555,21 @@ export default function FleetOnboardingPage() {
         -------------------------------------------------- */}
 
         <section className="fleet-container">
+        {loadError && (
+          <div className="fleet-load-error">
+            <p>
+              {loadError}
+            </p>
+
+            <button
+              className="load-retry"
+              type="button"
+              onClick={fetchFleet}
+            >
+              Retry ↻
+            </button>
+          </div>
+        )}
 
           <div className="fleet-section-header">
 
@@ -573,10 +797,10 @@ export default function FleetOnboardingPage() {
             <div className="fleet-vehicle-list">
 
               {[...iceVehicles, ...evVehicles].map(
-                (vehicle, index) => (
+                (vehicle) => (
                   <div
                     className="fleet-vehicle-row"
-                    key={`${vehicle.registration_number}-${index}`}
+                    key={vehicle.id}
                   >
 
                     <div className="fleet-vehicle-main">
@@ -1059,13 +1283,26 @@ export default function FleetOnboardingPage() {
                 Cancel
               </button>
 
+              {vehicleError && (
+                <p
+                  className="drawer-error"
+                  role="alert"
+                >
+                  {vehicleError}
+                </p>
+              )}
+
               <button
                 type="button"
                 className="drawer-save"
-                disabled={!isFormValid}
+                disabled={
+                  vehicleSaving || !isFormValid
+                }
                 onClick={handleAddVehicle}
               >
-                Add vehicle
+                {vehicleSaving
+                  ? "Adding…"
+                  : "Add vehicle"}
                 <span>→</span>
               </button>
 
@@ -1104,6 +1341,32 @@ export default function FleetOnboardingPage() {
               validate, organize and prepare it for onboarding.
             </p>
 
+            {importState.phase === "failed" && (
+              <p
+                className="import-status import-status--error"
+                role="alert"
+              >
+                {importState.message}
+              </p>
+            )}
+
+            {importState.phase === "processing" && (
+              <p className="import-status">
+                Processing {importState.processed}/
+                {importState.total} rows…
+              </p>
+            )}
+
+            {importState.phase === "done" && (
+              <p className="import-status import-status--done">
+                {`Imported: ${
+                  (importState.status.processed_rows -
+                    importState.status.failed_rows) ||
+                  0
+                } · Failed: ${importState.status.failed_rows}`}
+              </p>
+            )}
+
             <div className="import-steps">
 
               <div className="import-step active">
@@ -1138,6 +1401,10 @@ export default function FleetOnboardingPage() {
               <button
                 type="button"
                 className="browse-button"
+                disabled={
+                  importState.phase === "uploading" ||
+                  importState.phase === "processing"
+                }
                 onClick={() =>
                   fileInputRef.current?.click()
                 }
@@ -1148,7 +1415,7 @@ export default function FleetOnboardingPage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv"
+                accept=".csv,.xlsx,.xls"
                 hidden
                 onChange={handleFileUpload}
               />

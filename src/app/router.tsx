@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import LandingPage from "../features/landing/LandingPage";
+
+import { RedirectIfSignedIn } from "./RedirectIfSignedIn";
 import LoginPage from "../features/authentication/LoginPage";
 import RegisterPage from "../features/authentication/RegisterPage";
 
@@ -13,10 +15,16 @@ import FleetOnboardingPage from "../features/onboarding/FleetOnboardingPage";
 
 import DashboardPage from "../features/dashboard/DashboardPage";
 
+import { RequireAuth } from "./RequireAuth";
+
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <LandingPage />,
+    element: (
+      <RedirectIfSignedIn>
+        <LandingPage />
+      </RedirectIfSignedIn>
+    ),
   },
   {
     path: "/login",
@@ -28,26 +36,50 @@ export const router = createBrowserRouter([
   },
   {
     path: "/organization/setup",
-    element: <OrganizationSetupPage />,
+    element: (
+      <RequireAuth>
+        <OrganizationSetupPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/organization/create",
-    element: <CreateOrganizationPage />,
+    element: (
+      <RequireAuth>
+        <CreateOrganizationPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/organization/link",
-    element: <LinkOrganizationPage />,
+    element: (
+      <RequireAuth>
+        <LinkOrganizationPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/onboarding/infrastructure",
-    element: <InfrastructureOnboardingPage />,
+    element: (
+      <RequireAuth>
+        <InfrastructureOnboardingPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/onboarding/fleet",
-    element: <FleetOnboardingPage />,
+    element: (
+      <RequireAuth>
+        <FleetOnboardingPage />
+      </RequireAuth>
+    ),
   },
   {
     path: "/dashboard",
-    element: <DashboardPage />,
+    element: (
+      <RequireAuth>
+        <DashboardPage />
+      </RequireAuth>
+    ),
   },
 ]);
