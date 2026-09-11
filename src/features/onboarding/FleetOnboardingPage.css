@@ -1641,3 +1641,92 @@
     padding: 22px 20px;
   }
 }
+/* ============================================================
+   BACKEND WIRING (load errors, import status, drawer errors)
+   ============================================================ */
+
+.fleet-load-error {
+  margin: 0 0 22px;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  background: #fdf2f0;
+  border: 1px solid #ebc9c1;
+  border-radius: var(--radius-default, 10px);
+}
+
+.fleet-load-error p {
+  margin: 0;
+
+  color: #b1402c;
+  font-size: 13.5px;
+}
+
+.load-retry {
+  padding: 7px 15px;
+  flex-shrink: 0;
+
+  background: #b1402c;
+  border: 0;
+  border-radius: 999px;
+
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.load-retry:hover {
+  background: #97331f;
+}
+
+.drawer-error {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+
+  background: #fdf2f0;
+  border: 1px solid #ebc9c1;
+  border-radius: 8px;
+
+  color: #b1402c;
+  font-size: 12.5px;
+  line-height: 18px;
+}
+
+.import-status {
+  margin: -6px 0 14px;
+  padding: 10px 14px;
+
+  background: #f4f6f3;
+  border: 1px solid #d8e0d6;
+  border-radius: 8px;
+
+  color: #2e5138;
+  font-size: 12.5px;
+}
+
+.import-status--error {
+  background: #fdf2f0;
+  border-color: #ebc9c1;
+
+  color: #b1402c;
+}
+
+.import-status--done {
+  background: #f0f7ef;
+  border-color: #c9dfc8;
+
+  color: #28602f;
+  font-weight: 600;
+}
+
+.browse-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

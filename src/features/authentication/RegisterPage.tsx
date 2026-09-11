@@ -2,24 +2,83 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { supabase } from "../../lib/supabase";
+import { resolveOnboardingStep, STEP_ROUTES } from "../../lib/onboardingFlow";
+import { useTransition } from "../../app/useTransition";
 import "./LoginPage.css";
 import "./RegisterPage.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { runTransition } = useTransition();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || busy) {
       return;
     }
 
-    navigate("/organization/setup");
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+      },
+    });
+
+    if (authError) {
+      setBusy(false);
+      setError(authError.message);
+      return;
+    }
+
+    if (data.session) {
+      void runTransition(async () => {
+        setError(null);
+
+        try {
+          const result = await resolveOnboardingStep();
+          navigate(STEP_ROUTES[result.step], {
+            replace: true,
+            viewTransition: true,
+          });
+        } catch {
+          setError("Account created, but we could not load your profile.");
+        } finally {
+          setBusy(false);
+        }
+      });
+      return;
+    }
+
+    setBusy(false);
+    setNotice("Check your email to confirm your account before signing in.");
+  };
+
+  const handleGoogle = async () => {
+    setError(null);
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+    }
   };
 
   return (
@@ -67,7 +126,9 @@ function RegisterPage() {
               id="register-password"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) =>
+                setPassword(event.target.value)
+              }
               placeholder="••••••••"
               minLength={12}
               required
@@ -78,7 +139,12 @@ function RegisterPage() {
             </span>
           </div>
 
-          <Button type="submit">CREATE ACCOUNT</Button>
+          {error && <p className="auth-error">{error}</p>}
+          {notice && <p className="auth-error auth-notice">{notice}</p>}
+
+          <Button type="submit" disabled={busy}>
+            {busy ? "CREATING…" : "CREATE ACCOUNT"}
+          </Button>
 
           <div className="auth-divider">
             <span>OR</span>
@@ -87,6 +153,8 @@ function RegisterPage() {
           <button
             className="google-button"
             type="button"
+            onClick={handleGoogle}
+            disabled={busy}
           >
             <span>G</span>
             Continue with Google

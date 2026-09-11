@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import ComingSoonModal from "../../components/ui/ComingSoonModal";
 import "./OrganizationSetupPage.css";
 
 function OrganizationSetupPage() {
   const navigate = useNavigate();
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
 
   return (
     <main className="organization-setup">
@@ -35,7 +38,7 @@ function OrganizationSetupPage() {
 
             <Button
               variant="ghost"
-              onClick={() => navigate("/organization/link")}
+              onClick={() => setLinkModalOpen(true)}
             >
               Connect now →
             </Button>
@@ -72,6 +75,13 @@ function OrganizationSetupPage() {
           ⓘ Need help deciding? Contact Support
         </button>
       </section>
+
+      <ComingSoonModal
+        open={linkModalOpen}
+        title="Link an Organization"
+        description="Bringing existing enterprise workspaces into EVORA takes a bit more time. Linking will be available soon."
+        onClose={() => setLinkModalOpen(false)}
+      />
     </main>
   );
 }

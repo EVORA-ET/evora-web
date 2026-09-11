@@ -1,23 +1,91 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
+import { supabase } from "../../lib/supabase";
+import { resolveOnboardingStep, STEP_ROUTES } from "../../lib/onboardingFlow";
+import { useTransition } from "../../app/useTransition";
 import "./LoginPage.css";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { runTransition } = useTransition();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const resolving = useRef(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const continueAfterLogin = () => {
+    if (resolving.current) return;
+    resolving.current = true;
+
+    void runTransition(async () => {
+      setError(null);
+
+      try {
+        const result = await resolveOnboardingStep();
+        navigate(STEP_ROUTES[result.step], {
+          replace: true,
+          viewTransition: true,
+        });
+      } catch {
+        setError("Could not load your profile. Please try again.");
+      } finally {
+        resolving.current = false;
+      }
+    });
+  };
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      const signedIn =
+        event === "SIGNED_IN" || (event === "INITIAL_SESSION" && session);
+      if (signedIn) {
+        void continueAfterLogin();
+      }
+    });
+
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!email || !password) {
+    if (!email || !password || busy) {
       return;
     }
 
-    navigate("/organization/setup");
+    setBusy(true);
+    setError(null);
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setBusy(false);
+      setError(authError.message);
+      return;
+    }
+
+    continueAfterLogin();
+  };
+
+  const handleGoogle = async () => {
+    setError(null);
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+    }
   };
 
   return (
@@ -66,7 +134,11 @@ function LoginPage() {
             />
           </div>
 
-          <Button type="submit">SIGN IN →</Button>
+          {error && <p className="auth-error">{error}</p>}
+
+          <Button type="submit" disabled={busy}>
+            {busy ? "SIGNING IN…" : "SIGN IN →"}
+          </Button>
 
           <div className="auth-divider">
             <span>OR</span>
@@ -75,6 +147,8 @@ function LoginPage() {
           <button
             className="google-button"
             type="button"
+            onClick={handleGoogle}
+            disabled={busy}
           >
             <span>G</span>
             Continue with Google

@@ -1,0 +1,16 @@
+.dashboard-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.dashboard-page__title {
+  margin: 0;
+
+  font-family: sans-serif;
+  font-size: 2rem;
+  color: #111111;
+}
