@@ -66,6 +66,8 @@ export interface ResolvedInput {
   transformation: string;
   note: string;
   critical: boolean;
+  /** Ids of the stored records a derived measured value was calculated from. */
+  derived_from_ids?: string[];
 }
 
 /** Either a stored observation or an inline, clearly-labelled value. */
@@ -124,6 +126,13 @@ export interface EvidenceSource {
   last_successful_refresh_at: string | null;
   last_refresh_error: string;
   created_at: string;
+  /** Append-only record of every verify/reject decision and refresh reset. */
+  verification_history: Array<{
+    status: "unverified" | "verified" | "rejected";
+    note: string;
+    decided_by_id: string | null;
+    decided_at: string;
+  }>;
 }
 
 export type EvidenceSourceInput = Pick<
