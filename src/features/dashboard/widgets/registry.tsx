@@ -1,0 +1,497 @@
+import {
+  Activity,
+  BatteryCharging,
+  BatteryFull,
+  CalendarClock,
+  ChartColumn,
+  ChartLine,
+  ChartPie,
+  Clock,
+  Gauge,
+  IdCard,
+  Layers,
+  LocateFixed,
+  Leaf,
+  ListChecks,
+  Route,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Truck,
+  TriangleAlert,
+  UsersRound,
+  Wrench,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+import {
+  FleetAgeWidget,
+  ActiveVehiclesRingWidget,
+  ActiveVehiclesWidget,
+  FleetCompositionBarWidget,
+  FleetCompositionWidget,
+  FleetHealthWidget,
+  FleetStatusDonutWidget,
+  FleetStatusWidget,
+  VehicleAvailabilityWidget,
+  VehiclesByTypeWidget,
+} from "./fleetWidgets";
+import {
+  BatteryCapacityWidget,
+  InsuranceRenewalsWidget,
+  LicenceRenewalsWidget,
+  MaintenanceDonutWidget,
+  MaintenanceOverviewWidget,
+  UnderMaintenanceWidget,
+} from "./healthWidgets";
+import {
+  EvoraInsightWidget,
+  KpiSnapshotWidget,
+  TodaysAttentionWidget,
+} from "./insightWidgets";
+import {
+  EvShareBarWidget,
+  EvVsIceCostWidget,
+  MigrationProgressWidget,
+} from "./migrationWidgets";
+import {
+  ActiveTripsWidget,
+  DriverAssignmentsWidget,
+  EvIceUtilizationWidget,
+  FleetUtilizationLineWidget,
+  FleetUtilizationWidget,
+  TripStatusBarsWidget,
+  TripStatusWidget,
+  VehicleLocationsWidget,
+} from "./operationsWidgets";
+import type { WidgetCategory, WidgetDefinition, WidgetSize } from "./types";
+
+const SMALL: WidgetSize = { w: 4, h: 6 };
+const MEDIUM: WidgetSize = { w: 6, h: 8 };
+const LARGE: WidgetSize = { w: 8, h: 10 };
+const WIDE: WidgetSize = { w: 12, h: 8 };
+
+const MIN_SMALL: WidgetSize = { w: 3, h: 5 };
+const MIN_MEDIUM: WidgetSize = { w: 4, h: 6 };
+
+function live(
+  definition: Omit<WidgetDefinition, "minSize"> & { minSize?: WidgetSize },
+): WidgetDefinition {
+  return { minSize: MIN_SMALL, ...definition };
+}
+
+function soon(
+  id: string,
+  title: string,
+  description: string,
+  category: WidgetCategory,
+  icon: LucideIcon,
+  needs: string,
+): WidgetDefinition {
+  return {
+    id,
+    title,
+    description,
+    category,
+    style: "Number",
+    icon,
+    defaultSize: MEDIUM,
+    minSize: MIN_SMALL,
+    needs,
+  };
+}
+
+const READINESS = "EV readiness scoring";
+const SERVICE = "Service history and predictive maintenance";
+const BATTERY = "Battery telemetry (state of health)";
+
+export const WIDGETS: WidgetDefinition[] = [
+  /* ------------------------------ Fleet ------------------------------ */
+  live({
+    id: "fleet-status",
+    title: "Fleet Status",
+    description: "Total vehicles, split by on trip, idle, attention and inactive.",
+    category: "Fleet",
+    style: "Number",
+    icon: Truck,
+    defaultSize: SMALL,
+    Component: FleetStatusWidget,
+  }),
+  live({
+    id: "fleet-status-donut",
+    title: "Fleet Status (Donut)",
+    description: "The same breakdown as a donut chart with a legend.",
+    category: "Fleet",
+    style: "Donut",
+    icon: ChartPie,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetStatusDonutWidget,
+  }),
+  live({
+    id: "fleet-composition",
+    title: "Fleet Composition",
+    description: "How much of your fleet is electric vs combustion.",
+    category: "Fleet",
+    style: "Donut",
+    icon: Layers,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetCompositionWidget,
+  }),
+  live({
+    id: "fleet-composition-bar",
+    title: "Fleet Composition (Bar)",
+    description: "EV vs ICE as a stacked bar, plus a fuel-type breakdown.",
+    category: "Fleet",
+    style: "Bars",
+    icon: ChartColumn,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetCompositionBarWidget,
+  }),
+  live({
+    id: "active-vehicles",
+    title: "Active Vehicles",
+    description: "Vehicles marked active, and how many are on a trip right now.",
+    category: "Fleet",
+    style: "Number",
+    icon: Activity,
+    defaultSize: SMALL,
+    Component: ActiveVehiclesWidget,
+  }),
+  live({
+    id: "active-vehicles-ring",
+    title: "Active Vehicles (Ring)",
+    description: "Active share of the fleet as a progress ring.",
+    category: "Fleet",
+    style: "Ring",
+    icon: Gauge,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: ActiveVehiclesRingWidget,
+  }),
+  live({
+    id: "vehicle-availability",
+    title: "Vehicle Availability",
+    description: "What's ready to dispatch, on the road or unavailable.",
+    category: "Fleet",
+    style: "Bars",
+    icon: ListChecks,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: VehicleAvailabilityWidget,
+  }),
+  live({
+    id: "fleet-health",
+    title: "Fleet Health",
+    description: "Share of operational vehicles with no open issues.",
+    category: "Fleet",
+    style: "Ring",
+    icon: ShieldCheck,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetHealthWidget,
+  }),
+  live({
+    id: "vehicles-by-type",
+    title: "Vehicles by Type",
+    description: "Trucks, buses, vans and cars in your fleet.",
+    category: "Fleet",
+    style: "Bars",
+    icon: ChartColumn,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: VehiclesByTypeWidget,
+  }),
+  live({
+    id: "fleet-age",
+    title: "Fleet Age",
+    description: "Average vehicle age and how it is spread.",
+    category: "Fleet",
+    style: "Bars",
+    icon: Clock,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetAgeWidget,
+  }),
+
+  /* ---------------------------- Operations --------------------------- */
+  live({
+    id: "active-trips",
+    title: "Active Trips",
+    description: "Live trips with route, vehicle, driver and progress.",
+    category: "Operations",
+    style: "List",
+    icon: Route,
+    defaultSize: LARGE,
+    minSize: MIN_MEDIUM,
+    Component: ActiveTripsWidget,
+  }),
+  live({
+    id: "trip-status",
+    title: "Trip Status",
+    description: "All trips grouped by status, as a donut.",
+    category: "Operations",
+    style: "Donut",
+    icon: ChartPie,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: TripStatusWidget,
+  }),
+  live({
+    id: "trip-status-bars",
+    title: "Trip Status (Bars)",
+    description: "All trips grouped by status, as horizontal bars.",
+    category: "Operations",
+    style: "Bars",
+    icon: ChartColumn,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: TripStatusBarsWidget,
+  }),
+  live({
+    id: "vehicle-locations",
+    title: "Vehicle Locations",
+    description: "How many vehicles are reporting a position on the map.",
+    category: "Operations",
+    style: "Ring",
+    icon: LocateFixed,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: VehicleLocationsWidget,
+  }),
+  live({
+    id: "driver-assignments",
+    title: "Driver Assignments",
+    description: "Drivers on a trip, on leave, and vehicles without a driver.",
+    category: "Operations",
+    style: "Number",
+    icon: UsersRound,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: DriverAssignmentsWidget,
+  }),
+  live({
+    id: "fleet-utilization",
+    title: "Fleet Utilization",
+    description: "Daily share of operational vehicles that ran a trip, last 7 days.",
+    category: "Operations",
+    style: "Bars",
+    icon: TrendingUp,
+    defaultSize: LARGE,
+    minSize: MIN_MEDIUM,
+    Component: FleetUtilizationWidget,
+  }),
+  live({
+    id: "fleet-utilization-line",
+    title: "Fleet Utilization (Trend)",
+    description: "The same 7 days drawn as a trend line.",
+    category: "Operations",
+    style: "Line",
+    icon: ChartLine,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: FleetUtilizationLineWidget,
+  }),
+  live({
+    id: "ev-ice-utilization",
+    title: "EV vs ICE Utilization",
+    description: "Trips run by electric and combustion vehicles each day.",
+    category: "Operations",
+    style: "Bars",
+    icon: Zap,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: EvIceUtilizationWidget,
+  }),
+  soon("low-fuel-battery", "Low Fuel / Battery", "Vehicles running low on fuel or charge.", "Operations", BatteryCharging, "Live fuel and charge telemetry"),
+
+  /* --------------------------- EV Migration -------------------------- */
+  live({
+    id: "migration-progress",
+    title: "Migration Progress",
+    description: "Share of your fleet that is already electric.",
+    category: "EV Migration",
+    style: "Ring",
+    icon: Target,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: MigrationProgressWidget,
+  }),
+  live({
+    id: "ev-share",
+    title: "EV Share",
+    description: "Electric share of the fleet as a single number and bar.",
+    category: "EV Migration",
+    style: "Number",
+    icon: Leaf,
+    defaultSize: SMALL,
+    Component: EvShareBarWidget,
+  }),
+  live({
+    id: "ev-vs-ice-cost",
+    title: "EV vs ICE Cost",
+    description: "Average monthly running cost per vehicle, from recorded costs.",
+    category: "EV Migration",
+    style: "Bars",
+    icon: ChartColumn,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: EvVsIceCostWidget,
+  }),
+  soon("ev-readiness", "EV Readiness", "Fleet-wide readiness score for electrification.", "EV Migration", Gauge, READINESS),
+  soon("ev-candidates", "EV Candidates", "Vehicles ready to be replaced by an EV.", "EV Migration", Zap, READINESS),
+  soon("top-ev-candidates", "Top EV Candidates", "The highest-scoring ICE vehicles to transition first.", "EV Migration", TrendingUp, READINESS),
+  soon("readiness-distribution", "Readiness Distribution", "How readiness scores are spread across the fleet.", "EV Migration", ChartColumn, READINESS),
+  soon("readiness-factors", "Readiness Factors", "What drives each vehicle's readiness score.", "EV Migration", ListChecks, READINESS),
+  soon("migration-timeline", "Migration Timeline", "A phased plan for moving the fleet to EV.", "EV Migration", CalendarClock, READINESS),
+
+  /* ------------------------ Health & Maintenance --------------------- */
+  live({
+    id: "maintenance-overview",
+    title: "Maintenance Overview",
+    description: "Healthy, insurance issues and vehicles in the workshop.",
+    category: "Health & Maintenance",
+    style: "Number",
+    icon: Wrench,
+    defaultSize: SMALL,
+    minSize: MIN_SMALL,
+    Component: MaintenanceOverviewWidget,
+  }),
+  live({
+    id: "maintenance-donut",
+    title: "Maintenance Overview (Donut)",
+    description: "Fleet health split as a donut chart.",
+    category: "Health & Maintenance",
+    style: "Donut",
+    icon: ChartPie,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: MaintenanceDonutWidget,
+  }),
+  live({
+    id: "under-maintenance",
+    title: "Under Maintenance",
+    description: "Vehicles currently marked as under maintenance.",
+    category: "Health & Maintenance",
+    style: "List",
+    icon: Wrench,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: UnderMaintenanceWidget,
+  }),
+  live({
+    id: "insurance-renewals",
+    title: "Insurance Renewals",
+    description: "Policies that have lapsed or expire soon.",
+    category: "Health & Maintenance",
+    style: "List",
+    icon: ShieldCheck,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: InsuranceRenewalsWidget,
+  }),
+  live({
+    id: "licence-renewals",
+    title: "Driver Licence Renewals",
+    description: "Active drivers whose licence is expired or expiring.",
+    category: "Health & Maintenance",
+    style: "List",
+    icon: IdCard,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: LicenceRenewalsWidget,
+  }),
+  soon("maintenance-due", "Maintenance Due", "Vehicles due for service.", "Health & Maintenance", CalendarClock, SERVICE),
+  soon("maintenance-risk", "Maintenance Risk", "Predicted breakdown risk across the fleet.", "Health & Maintenance", TriangleAlert, SERVICE),
+  soon("upcoming-maintenance", "Upcoming Maintenance", "Services scheduled in the coming weeks.", "Health & Maintenance", CalendarClock, SERVICE),
+  soon("maintenance-trend", "Maintenance Trend", "Maintenance activity over time.", "Health & Maintenance", ChartLine, SERVICE),
+  soon("high-risk-vehicles", "High-Risk Vehicles", "Vehicles most likely to need attention soon.", "Health & Maintenance", TriangleAlert, SERVICE),
+
+  /* --------------------------- Battery Health ------------------------ */
+  live({
+    id: "ev-battery-capacity",
+    title: "EV Battery Capacity",
+    description: "Installed battery capacity across your electric vehicles.",
+    category: "Battery Health",
+    style: "Number",
+    icon: BatteryFull,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: BatteryCapacityWidget,
+  }),
+  soon("battery-health", "Battery Health", "Average state of health across your EVs.", "Battery Health", BatteryFull, BATTERY),
+  soon("battery-health-distribution", "Battery Health Distribution", "How state of health is spread across EVs.", "Battery Health", ChartColumn, BATTERY),
+  soon("battery-soh-trend", "Battery SOH Trend", "State of health over time.", "Battery Health", ChartLine, BATTERY),
+  soon("battery-risk", "Battery Risk", "EVs with batteries at risk.", "Battery Health", TriangleAlert, BATTERY),
+  soon("declining-soh", "Declining SOH", "Batteries degrading faster than expected.", "Battery Health", TrendingUp, BATTERY),
+  soon("charge-cycles", "Charge Cycles", "Charge cycles used per EV.", "Battery Health", BatteryCharging, BATTERY),
+
+  /* ------------------------------ Insights --------------------------- */
+  live({
+    id: "todays-attention",
+    title: "Today's Attention",
+    description: "Everything that needs a look right now, most urgent first.",
+    category: "Insights",
+    style: "List",
+    icon: TriangleAlert,
+    defaultSize: LARGE,
+    minSize: MIN_MEDIUM,
+    Component: TodaysAttentionWidget,
+  }),
+  live({
+    id: "evora-insight",
+    title: "EVORA Insight",
+    description: "Plain-language observations built from your fleet data.",
+    category: "Insights",
+    style: "Insight",
+    icon: Sparkles,
+    defaultSize: WIDE,
+    minSize: MIN_MEDIUM,
+    tone: "brand",
+    Component: EvoraInsightWidget,
+  }),
+  live({
+    id: "kpi-snapshot",
+    title: "KPI Snapshot",
+    description: "Vehicles, active, trips in progress and EV share at a glance.",
+    category: "Insights",
+    style: "Number",
+    icon: Gauge,
+    defaultSize: MEDIUM,
+    minSize: MIN_MEDIUM,
+    Component: KpiSnapshotWidget,
+  }),
+  soon("fleet-trend", "Fleet Trend", "How your fleet mix changes over time.", "Insights", ChartLine, "Historical fleet snapshots"),
+];
+
+export const WIDGET_BY_ID = new Map(WIDGETS.map((widget) => [widget.id, widget]));
+
+/** Shown the first time someone opens their dashboard. */
+export const DEFAULT_WIDGETS: { id: string; x: number; y: number; w: number; h: number }[] = [
+  { id: "fleet-status", x: 0, y: 0, w: 4, h: 6 },
+  { id: "active-vehicles", x: 4, y: 0, w: 4, h: 6 },
+  { id: "ev-share", x: 8, y: 0, w: 4, h: 6 },
+  { id: "todays-attention", x: 0, y: 6, w: 8, h: 10 },
+  { id: "fleet-composition", x: 8, y: 6, w: 4, h: 10 },
+  { id: "fleet-utilization", x: 0, y: 16, w: 8, h: 10 },
+  { id: "maintenance-overview", x: 8, y: 16, w: 4, h: 10 },
+  { id: "migration-progress", x: 0, y: 26, w: 6, h: 8 },
+  { id: "ev-vs-ice-cost", x: 6, y: 26, w: 6, h: 8 },
+  { id: "evora-insight", x: 0, y: 34, w: 12, h: 7 },
+];
+
+export function searchWidgets(query: string, widgets: WidgetDefinition[] = WIDGETS): WidgetDefinition[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return widgets;
+
+  return widgets.filter((widget) =>
+    [widget.title, widget.description, widget.category, widget.style, ...(widget.keywords ?? [])]
+      .join(" ")
+      .toLowerCase()
+      .includes(needle),
+  );
+}

@@ -1,0 +1,25 @@
+.app-shell {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.app-shell__main {
+  min-width: 0;
+  min-height: 100vh;
+  padding: calc(var(--topbar-height) + 32px) var(--space-margin-desktop) 64px;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--duration-base) var(--ease-out);
+}
+
+.app-shell--collapsed .app-shell__main {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+@media (max-width: 900px) {
+  .app-shell__main,
+  .app-shell--collapsed .app-shell__main {
+    padding-right: 16px;
+    padding-left: 16px;
+    margin-left: 0;
+  }
+}
