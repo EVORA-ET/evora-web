@@ -259,7 +259,7 @@ export interface Vehicle {
   seating_capacity: number;
   gvw_kg: string;
   status: string;
-  current_location: unknown;
+  current_location: GeoPoint | null;
   assigned_driver_id: string | null;
   odometer_km: string | null;
   avg_daily_km: string | null;
@@ -332,4 +332,95 @@ export function createVehicle(
 
 export function listVehicles(): Promise<Vehicle[]> {
   return apiFetch<Vehicle[]>("/vehicle");
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Geometry                                                            */
+/* ------------------------------------------------------------------ */
+
+/** GeoJSON point as returned by DRF-GIS. Coordinates are [lng, lat]. */
+export interface GeoPoint {
+  type: string;
+  coordinates: [number, number];
+}
+
+/* ------------------------------------------------------------------ */
+/* Drivers                                                             */
+/* ------------------------------------------------------------------ */
+
+export type DriverStatus =
+  | "active"
+  | "inactive"
+  | "on_leave"
+  | "suspended"
+  | "terminated";
+
+export interface Driver {
+  id: string;
+  organization_id: string;
+  user_id: string | null;
+  driver_code: string;
+  name: string;
+  license_number: string;
+  license_class: string;
+  license_expiry: string | null;
+  experience_years: number | null;
+  status: DriverStatus | string;
+  shift: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export function listDrivers(): Promise<Driver[]> {
+  return apiFetch<Driver[]>("/driver");
+}
+
+/* ------------------------------------------------------------------ */
+/* Trips (job instances) and their stops                               */
+/* ------------------------------------------------------------------ */
+
+export type JobInstanceStatus =
+  | "PENDING"
+  | "ASSIGNED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED";
+
+export interface JobInstance {
+  id: string;
+  organization_id: string;
+  job_template_id: string;
+  vehicle_id: string;
+  driver_id: string;
+  scheduled_start_at: string | null;
+  scheduled_end_at: string | null;
+  actual_start_at: string | null;
+  actual_end_at: string | null;
+  status: JobInstanceStatus;
+  completion_percentage: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export function listJobInstances(): Promise<JobInstance[]> {
+  return apiFetch<JobInstance[]>("/job-instance");
+}
+
+export interface InstanceStop {
+  id: string;
+  job_instance_id: string;
+  stop_id: string;
+  sequence_number: number;
+  estimated_arrival: string | null;
+  actual_arrival: string | null;
+  actual_departure: string | null;
+  status: "PENDING" | "ARRIVED" | "SKIPPED" | "COMPLETED";
+  delay_minutes: number | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export function listInstanceStops(): Promise<InstanceStop[]> {
+  return apiFetch<InstanceStop[]>("/instance-stop");
 }

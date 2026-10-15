@@ -1,0 +1,76 @@
+.dash-grid {
+  position: relative;
+  min-height: 120px;
+}
+
+/* Soft snap guides while editing */
+.dash-grid--editing {
+  background-image: radial-gradient(circle, rgba(45, 90, 66, 0.16) 1.2px, transparent 1.4px);
+  background-size: calc((100% + 24px) / 12) 48px;
+  border-radius: var(--radius-lg);
+}
+
+.dash-grid .react-grid-item.react-grid-placeholder {
+  background: rgba(45, 90, 66, 0.16);
+  border: 2px dashed var(--color-primary-container);
+  border-radius: var(--radius-lg);
+  opacity: 1;
+}
+
+.dash-grid .react-grid-item.react-draggable-dragging {
+  z-index: 20;
+  opacity: 0.96;
+  filter: drop-shadow(0 18px 28px rgba(20, 66, 44, 0.22));
+}
+
+.dash-grid .react-grid-item.react-draggable-dragging .dash-widget {
+  cursor: grabbing;
+  transform: rotate(-0.6deg) scale(1.01);
+}
+
+.dash-grid .react-grid-item > .react-resizable-handle {
+  right: 4px;
+  bottom: 4px;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  cursor: se-resize;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.dash-grid--editing .react-grid-item > .react-resizable-handle {
+  opacity: 1;
+}
+
+.dash-grid .react-grid-item > .react-resizable-handle::after {
+  right: 5px;
+  bottom: 5px;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid var(--color-primary-container);
+  border-bottom: 2.5px solid var(--color-primary-container);
+  border-radius: 0 0 3px 0;
+}
+
+/* Single-column flow (search results, narrow screens) */
+.dash-flow {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-gutter);
+}
+
+.dash-flow__item {
+  grid-column: span var(--span, 12);
+}
+
+@media (max-width: 1100px) {
+  .dash-flow__item {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 720px) {
+  .dash-flow__item {
+    grid-column: 1 / -1;
+  }
+}

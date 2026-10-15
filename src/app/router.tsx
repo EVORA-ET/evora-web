@@ -14,6 +14,14 @@ import InfrastructureOnboardingPage from "../features/onboarding/InfrastructureO
 import FleetOnboardingPage from "../features/onboarding/FleetOnboardingPage";
 
 import DashboardPage from "../features/dashboard/DashboardPage";
+import AppShell from "../components/layout/AppShell";
+import {
+  EvMigrationPage,
+  HealthMaintenancePage,
+  ManageFleetsPage,
+  ReportsPage,
+  SettingsPage,
+} from "../features/modules/modulePages";
 
 import { RequireAuth } from "./RequireAuth";
 
@@ -75,11 +83,19 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard",
+    /* Everything inside the app shell shares the sidebar, top bar and live data. */
     element: (
-      <RequireAuth>
-        <DashboardPage />
+      <RequireAuth showSignOut={false}>
+        <AppShell />
       </RequireAuth>
     ),
+    children: [
+      { path: "/dashboard", element: <DashboardPage /> },
+      { path: "/fleets", element: <ManageFleetsPage /> },
+      { path: "/ev-migration", element: <EvMigrationPage /> },
+      { path: "/health", element: <HealthMaintenancePage /> },
+      { path: "/reports", element: <ReportsPage /> },
+      { path: "/settings", element: <SettingsPage /> },
+    ],
   },
 ]);

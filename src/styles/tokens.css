@@ -127,3 +127,28 @@
   --space-margin-desktop: 32px;
   --sidebar-width: 280px;
 }
+
+/* ---------------------------------------------------------------
+   Dashboard additions
+   Shared by the app shell, fleet map, alerts and widgets.
+---------------------------------------------------------------- */
+:root {
+  --color-amber: #f59e0b;
+  --color-amber-soft: rgba(245, 158, 11, 0.14);
+  --color-success-soft: rgba(20, 66, 44, 0.08);
+  --color-error-soft: rgba(186, 26, 26, 0.1);
+  --color-info-soft: rgba(49, 59, 75, 0.1);
+  --color-card-border: rgba(193, 201, 193, 0.6);
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 10px 28px rgba(20, 66, 44, 0.09);
+  --shadow-popover: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --sidebar-width-collapsed: 76px;
+  --topbar-height: 72px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 260ms;
+  --duration-slow: 420ms;
+}

@@ -6,9 +6,11 @@ import SignOutButton from "../components/ui/SignOutButton";
 
 interface RequireAuthProps {
   children: ReactNode;
+  /** The floating sign-out button; the app shell has its own in the profile menu. */
+  showSignOut?: boolean;
 }
 
-export function RequireAuth({ children }: RequireAuthProps) {
+export function RequireAuth({ children, showSignOut = true }: RequireAuthProps) {
   const { sessionReady, accessToken } = useAuth();
   const location = useLocation();
 
@@ -23,7 +25,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
 
   return (
     <>
-      <SignOutButton />
+      {showSignOut && <SignOutButton />}
       {children}
     </>
   );
