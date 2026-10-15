@@ -88,8 +88,7 @@ export function selectForMap(
     const ids = new Set<string>();
 
     routes.forEach((route) => {
-      index.openTripsByRoute.get(route.id)?.forEach((trip) => ids.add(trip.vehicle_id));
-    });
+index.openTripsByRoute.get(route.id)?.forEach((trip) => trip.vehicle_id && ids.add(trip.vehicle_id));    });
 
     vehicles = vehicles.filter((vehicle) => ids.has(vehicle.id));
   }
@@ -109,8 +108,7 @@ export function selectForMap(
     const vehiclesOnMatchedRoutes = new Set<string>();
 
     matchedRoutes.forEach((route) => {
-      index.openTripsByRoute.get(route.id)?.forEach((trip) => vehiclesOnMatchedRoutes.add(trip.vehicle_id));
-    });
+index.openTripsByRoute.get(route.id)?.forEach((trip) => trip.vehicle_id && vehiclesOnMatchedRoutes.add(trip.vehicle_id));    });
 
     const matchedVehicles = vehicles.filter(
       (vehicle) =>

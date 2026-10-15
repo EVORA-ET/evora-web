@@ -172,8 +172,8 @@ export function ActiveTripsWidget() {
     <div className="w-list">
       {live.slice(0, 6).map((trip) => {
         const route = index.routeById.get(trip.job_template_id);
-        const vehicle = index.vehicleById.get(trip.vehicle_id);
-        const driver = index.driverById.get(trip.driver_id);
+        const vehicle = trip.vehicle_id ? index.vehicleById.get(trip.vehicle_id) : undefined;
+        const driver = trip.driver_id ? index.driverById.get(trip.driver_id) : undefined;
         const delay = index.maxDelayByTrip.get(trip.id) ?? 0;
 
         return (

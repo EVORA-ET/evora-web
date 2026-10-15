@@ -16,7 +16,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/fleets", label: "Manage Fleets", icon: Truck },
+  { to: "/fleets", label: "Operations", icon: Truck },
   { to: "/ev-migration", label: "EV Migration", icon: Zap },
   { to: "/health", label: "Health & Maintenance", icon: Activity },
   { to: "/reports", label: "Carbon Footprints & Reports", icon: Leaf },

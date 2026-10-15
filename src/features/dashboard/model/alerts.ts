@@ -163,8 +163,7 @@ export function buildAlerts(
     if (delay < DELAY_ALERT_MINUTES) continue;
 
     const route = index.routeById.get(trip.job_template_id);
-    const vehicle = index.vehicleById.get(trip.vehicle_id);
-    const routeName = route?.name ?? "A route";
+const vehicle = trip.vehicle_id ? index.vehicleById.get(trip.vehicle_id) : undefined;    const routeName = route?.name ?? "A route";
 
     alerts.push({
       id: `delay:${trip.id}`,
