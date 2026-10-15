@@ -150,7 +150,7 @@ export function buildIndex(snapshot: FleetSnapshot): FleetIndex {
 
   for (const trip of snapshot.trips) {
     if (trip.status === "IN_PROGRESS") {
-      liveTripByVehicle.set(trip.vehicle_id, trip);
+      if (trip.vehicle_id) liveTripByVehicle.set(trip.vehicle_id, trip);
     }
 
     if (trip.status === "IN_PROGRESS" || trip.status === "ASSIGNED") {
@@ -400,9 +400,8 @@ export function computeStats(
     if (!bucket) continue;
 
     bucket.trips += 1;
-    bucket.vehicles.add(trip.vehicle_id);
-
-    const vehicle = index.vehicleById.get(trip.vehicle_id);
+    if (trip.vehicle_id) bucket.vehicles.add(trip.vehicle_id);
+    const vehicle = trip.vehicle_id ? index.vehicleById.get(trip.vehicle_id) : undefined;
     if (vehicle) {
       if (fuelCategory(vehicle) === "ev") bucket.ev += 1;
       else bucket.ice += 1;
@@ -546,11 +545,10 @@ export function summariseRoute(
 
     if (trip.status === "IN_PROGRESS") {
       inProgress += 1;
-      vehicleIds.add(trip.vehicle_id);
-      if ((index.maxDelayByTrip.get(trip.id) ?? 0) >= DELAY_ALERT_MINUTES) delayed += 1;
+      if (trip.vehicle_id) vehicleIds.add(trip.vehicle_id); if ((index.maxDelayByTrip.get(trip.id) ?? 0) >= DELAY_ALERT_MINUTES) delayed += 1;
     } else if (trip.status === "ASSIGNED") {
       assigned += 1;
-      vehicleIds.add(trip.vehicle_id);
+      if (trip.vehicle_id) vehicleIds.add(trip.vehicle_id);
     } else if (trip.status === "COMPLETED") {
       completed += 1;
     }

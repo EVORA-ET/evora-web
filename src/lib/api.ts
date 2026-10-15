@@ -4,10 +4,13 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 export class ApiError extends Error {
   readonly status: number;
+  /** Parsed JSON error body, when the server sent one. */
+  readonly body: unknown;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, body?: unknown) {
     super(message);
     this.status = status;
+    this.body = body;
   }
 }
 
@@ -57,8 +60,10 @@ export async function apiFetch<T>(
 
   if (!response.ok) {
     let message = `Request failed (${response.status})`;
+    let errorBody: unknown;
     try {
       const body = await response.json();
+      errorBody = body;
       if (typeof body?.detail === "string" && body.detail) {
         message = body.detail;
       } else if (body && typeof body === "object") {
@@ -71,7 +76,7 @@ export async function apiFetch<T>(
     } catch {
       // keep default message
     }
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, errorBody);
   }
 
   if (response.status === 204) {
@@ -261,6 +266,8 @@ export interface Vehicle {
   status: string;
   current_location: GeoPoint | null;
   assigned_driver_id: string | null;
+  fleet_id: string | null;
+  depot_id: string | null;
   odometer_km: string | null;
   avg_daily_km: string | null;
   avg_monthly_km: string | null;
@@ -391,8 +398,9 @@ export interface JobInstance {
   id: string;
   organization_id: string;
   job_template_id: string;
-  vehicle_id: string;
-  driver_id: string;
+  /** Null until a vehicle is assigned (jobs can be created unassigned). */
+  vehicle_id: string | null;
+  driver_id: string | null;
   scheduled_start_at: string | null;
   scheduled_end_at: string | null;
   actual_start_at: string | null;
