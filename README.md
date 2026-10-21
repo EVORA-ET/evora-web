@@ -11,11 +11,7 @@ The production build is served by Nginx inside a Docker container (port 80, mapp
 docker build -t evora-web .
 
 # Run the container
-docker run -d --name evora-web \
-  --add-host=host.docker.internal:host-gateway \
-  -p 5173:80 \
-  --restart unless-stopped \
-  evora-web
+docker run -d --name evora-web --add-host=host.docker.internal:host-gateway -p 5173:80 --restart unless-stopped evora-web
 ```
 
 Then open http://localhost:5173/

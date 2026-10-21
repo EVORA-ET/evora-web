@@ -24,13 +24,18 @@ import RoutesPage from "../features/operations/RoutesPage";
 import JobsPage from "../features/operations/JobsPage";
 import AssignmentsPage from "../features/operations/AssignmentsPage";
 import AppShell from "../components/layout/AppShell";
-import {
-  EvMigrationPage,
-  HealthMaintenancePage,
-
-  ReportsPage,
-  SettingsPage,
-} from "../features/modules/modulePages";
+import EvMigrationLayout from "../features/ev-migration/EvMigrationLayout";
+import MigrationOverviewPage from "../features/ev-migration/MigrationOverviewPage";
+import DiscoverPage from "../features/ev-migration/DiscoverPage";
+import TransitionPlanPage from "../features/ev-migration/TransitionPlanPage";
+import EvidencePage from "../features/ev-migration/EvidencePage";
+import LegacyRedirect from "../features/intelligence/LegacyRedirect";
+import HealthLayout from "../features/health/HealthLayout";
+import FleetHealthPage from "../features/health/FleetHealthPage";
+import VehicleHealthPage from "../features/health/VehicleHealthPage";
+import RecordsPage from "../features/health/RecordsPage";
+import CarbonPage from "../features/carbon/CarbonPage";
+import SettingsPage from "../features/settings/SettingsPage";
 
 import { RequireAuth } from "./RequireAuth";
 
@@ -113,9 +118,35 @@ export const router = createBrowserRouter([
           { path: "jobs", element: <JobsPage /> },
           { path: "assignments", element: <AssignmentsPage /> },
         ],
-      }, { path: "/ev-migration", element: <EvMigrationPage /> },
-      { path: "/health", element: <HealthMaintenancePage /> },
-      { path: "/reports", element: <ReportsPage /> },
+      },
+      {
+        path: "/ev-migration",
+        element: <EvMigrationLayout />,
+        children: [
+          { index: true, element: <MigrationOverviewPage /> },
+          { path: "discover", element: <DiscoverPage /> },
+          { path: "plan", element: <TransitionPlanPage /> },
+          { path: "data", element: <EvidencePage /> },
+          /* Earlier six-tab layout: keep old links working. */
+          { path: "readiness", element: <LegacyRedirect to="/ev-migration/discover" /> },
+          { path: "recommendations", element: <LegacyRedirect to="/ev-migration/discover" /> },
+          { path: "planner", element: <LegacyRedirect to="/ev-migration/plan" /> },
+          { path: "tracking", element: <LegacyRedirect to="/ev-migration/plan" /> },
+          { path: "evidence", element: <LegacyRedirect to="/ev-migration/data" /> },
+        ],
+      },
+      {
+        path: "/health",
+        element: <HealthLayout />,
+        children: [
+          { index: true, element: <FleetHealthPage /> },
+          { path: "vehicles", element: <VehicleHealthPage /> },
+          { path: "records", element: <RecordsPage /> },
+          { path: "schedule", element: <LegacyRedirect to="/health/records?tab=rules" /> },
+          { path: "log", element: <LegacyRedirect to="/health/records?tab=log" /> },
+        ],
+      },
+      { path: "/reports", element: <CarbonPage /> },
       { path: "/settings", element: <SettingsPage /> },
     ],
   },
